@@ -31,6 +31,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import ResetIcon from '@mui/icons-material/Undo';
 import {useCart} from '@/lib/components/hooks/useCart';
+import {useSession} from 'next-auth/react';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {id} = context.query;
@@ -64,6 +65,7 @@ export default function ProductPage({
   const [stateOptions, setStateOptions] = useState<ProductOption[]>(options);
   const [selectedOption, setSelectedOption] = useState(options.at(0));
   const [images] = useState(product.images);
+  const {data: session} = useSession();
 
   const {addItem, state} = useCart();
 
@@ -87,7 +89,9 @@ export default function ProductPage({
                   console.log({state});
                   addItem({
                     id: v4(),
-                    title: selectedOption ? `${product.title} - ${selectedOption?.value}` : product.title,
+                    title: selectedOption
+                      ? `${product.title} - ${selectedOption?.value}`
+                      : product.title,
                     cartId: state.id,
                     productId: product.id,
                     basePrice: product.basePrice,
@@ -99,6 +103,11 @@ export default function ProductPage({
               >
                 Add to Cart
               </Button>
+              {session?.user.role === 'admin' && (
+                <Button href={`/products/${product.id}/edit`}>
+                  <EditIcon />
+                </Button>
+              )}
             </ButtonGroup>
           }
         />

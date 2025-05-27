@@ -1,13 +1,12 @@
 'use client';
 
-import {GetServerSidePropsContext, GetServerSidePropsResult} from 'next';
+import {Product} from '@/lib/classes/Product';
+import ProductOptionsCard from '@/lib/components/cards/ProductOptions';
+import {ProductOptionsPostSchema} from '@/lib/schemas/ProductOptionPostSchema';
 import prisma from '@/prisma/index';
-import {notFound} from 'next/navigation';
-import Prisma, {ProductOption} from '@prisma/client';
 import {
   Box,
   Button,
-  ButtonGroup,
   Card,
   CardContent,
   CardHeader,
@@ -15,23 +14,18 @@ import {
   ImageList,
   ImageListItem,
   InputAdornment,
-  ListItem,
   TextField,
-  ToggleButton,
 } from '@mui/material';
-import {Customer} from '@/lib/classes/Customer';
-import {Product} from '@/lib/classes/Product';
-import ProductOptionsCard from '@/lib/components/cards/ProductOptions';
+import Prisma, {ProductOption} from '@prisma/client';
+import {GetServerSidePropsContext} from 'next';
+import Image from 'next/image';
+import {notFound} from 'next/navigation';
 import {useState} from 'react';
 import {v4} from 'uuid';
-import Image from 'next/image';
-import {ProductOptionsPostSchema} from '@/lib/schemas/ProductOptionPostSchema';
-
-import ResetIcon from '@mui/icons-material/Undo';
-import SaveIcon from '@mui/icons-material/Save';
-import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
+import {useSnackbar} from 'notistack';
 import z from 'zod';
+
+import AddIcon from '@mui/icons-material/Add';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {id} = context.query;
@@ -62,13 +56,11 @@ export default function ProductPage({
   product: Prisma.Product;
   options: Prisma.ProductOption[];
 }) {
-  const [viewMode, setViewMode] = useState(true);
   const [stateOptions, setStateOptions] = useState<ProductOption[]>(options);
   const [imageUrl, setImageUrl] = useState('');
   const [images, setImages] = useState(product.images);
-  const [error, setError] = useState('');
-  const [option, setOption] = useState<ProductOption>({
-    id: v4(),
+  const [errorPath, setErrorPath] = useState<string[]>([]);
+  const [option, setOption] = useState<Partial<ProductOption>>({
     sku: '',
     attribute: '',
     value: '',
@@ -76,19 +68,17 @@ export default function ProductPage({
     extra: 0,
     productId: product.id,
   });
+  const {enqueueSnackbar} = useSnackbar();
 
-  const handleOptionChange = (field: keyof ProductOption, value: string) => {
-    setOption(o => {
-      const opts = {
-        ...o,
-        ...JSON.parse(
-          `{"${field}": ${['stock', 'extra'].includes(field) ? `${value}` : `"${value}"`}}`,
-        ),
-      };
-
-      return opts;
-    });
-  };
+  function handleOptionChange<K extends keyof typeof option>(
+    field: K,
+    value: typeof option[K],
+  ) {
+    setOption(o => ({
+      ...o,
+      [field]: value,
+    }));
+  }
 
   const handleAddProduct = async () => {
     const {success, error} = ProductOptionsPostSchema.safeParse(option);
@@ -112,26 +102,7 @@ export default function ProductPage({
   return (
     <>
       <Card>
-        <CardHeader
-          title={product.title}
-          subheader={product.description}
-          action={
-            <ButtonGroup variant="contained">
-              <Button
-                color={viewMode ? 'primary' : 'warning'}
-                onClick={() => setViewMode(!viewMode)}
-              >
-                <EditIcon />
-              </Button>
-              <Button disabled={viewMode}>
-                <ResetIcon />
-              </Button>
-              <Button disabled={viewMode}>
-                <SaveIcon />
-              </Button>
-            </ButtonGroup>
-          }
-        />
+        <CardHeader title={product.title} subheader={product.description} />
         <CardContent>
           {images.length > 0 && (
             <ImageList sx={{width: 500, height: 450}} cols={3} rowHeight={164}>
@@ -153,7 +124,7 @@ export default function ProductPage({
             value={imageUrl}
             fullWidth
             onChange={e => setImageUrl(e.target.value)}
-            error={error !== ''}
+            error={errorPath.includes('img')}
             slotProps={{
               input: {
                 endAdornment: (
@@ -181,9 +152,11 @@ export default function ProductPage({
                             setImageUrl('');
                           } else console.error(res.statusText);
                         }
-                        if (error) {
-                          setError(`${error.issues.at(0)?.message}`);
-                        }
+                        if (error)
+                          error.issues.map(i => {
+                            setErrorPath(p => [...p, `${i.path}`]);
+                            enqueueSnackbar(i.message, {variant: 'error'});
+                          });
                       }}
                     >
                       <AddIcon />
@@ -208,7 +181,6 @@ export default function ProductPage({
             <TextField
               label="SKU"
               value={option.sku}
-              disabled={viewMode}
               onChange={e => handleOptionChange('sku', e.target.value)}
             />
             <Box
@@ -221,14 +193,12 @@ export default function ProductPage({
               <TextField
                 label="Attribute"
                 fullWidth
-                disabled={viewMode}
                 value={option.attribute}
                 onChange={e => handleOptionChange('attribute', e.target.value)}
               />
               <TextField
                 label="Value"
                 fullWidth
-                disabled={viewMode}
                 value={option.value}
                 onChange={e => handleOptionChange('value', e.target.value)}
               />
@@ -243,9 +213,8 @@ export default function ProductPage({
               <TextField
                 label="Extra"
                 value={option.extra}
-                onChange={e => handleOptionChange('extra', e.target.value)}
+                onChange={e => handleOptionChange('extra', Number(e.target.value))}
                 fullWidth
-                disabled={viewMode}
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -257,9 +226,8 @@ export default function ProductPage({
               <TextField
                 label="Stock"
                 fullWidth
-                disabled={viewMode}
                 value={option.stock}
-                onChange={e => handleOptionChange('stock', e.target.value)}
+                onChange={e => handleOptionChange('stock', Number(e.target.value))}
               />
             </Box>
             <Box
@@ -269,15 +237,10 @@ export default function ProductPage({
                 gap: '1rem',
               }}
             >
-              <Button variant="outlined" fullWidth disabled={viewMode}>
+              <Button variant="outlined" fullWidth>
                 Reset
               </Button>
-              <Button
-                variant="contained"
-                fullWidth
-                disabled={viewMode}
-                onClick={handleAddProduct}
-              >
+              <Button variant="contained" fullWidth onClick={handleAddProduct}>
                 Add Option
               </Button>
             </Box>

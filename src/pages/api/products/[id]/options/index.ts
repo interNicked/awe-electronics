@@ -35,8 +35,7 @@ export default async function handler(
             stock: postData.stock,
             value: postData.value,
             extra: postData.extra,
-            productId: postData.productId,
-            id: postData.id
+            productId: postData.productId
         },
       });
 

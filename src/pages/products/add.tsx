@@ -20,11 +20,14 @@ import {
   Typography,
 } from '@mui/material';
 import {useState} from 'react';
-import {v4 as uuid} from 'uuid';
+import {v4 as uuid, v4} from 'uuid';
 import z from 'zod';
 import {ProductOption} from '@prisma/client';
 import ProductOptionsCard from '@/lib/components/cards/ProductOptions';
 import {ProductPostSchema} from '@/lib/schemas/ProductPostSchema';
+import {ProductOptionsPostSchema} from '@/lib/schemas/ProductOptionPostSchema';
+import {useRouter} from 'next/router';
+import {useSnackbar, VariantType} from 'notistack';
 
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
@@ -44,7 +47,9 @@ export function AddProductPage() {
     productId: id,
   });
   const [imageUrl, setImageUrl] = useState('');
-  const [error, setError] = useState('');
+  const [errorPath, setErrorPath] = useState<string[]>([]);
+  const {enqueueSnackbar} = useSnackbar();
+  const router = useRouter();
 
   const handleAddProduct = async () => {
     const {success, error} = ProductPostSchema.safeParse(product);
@@ -71,23 +76,35 @@ export function AddProductPage() {
             }),
           ),
         );
-        console.log('Saved!');
+        router.push(`/products/${savedProduct.id}`);
       }
     }
   };
 
-  const handleOptionChange = (field: keyof ProductOption, value: string) => {
-    setOption(o => {
-      const opts = {
-        ...o,
-        ...JSON.parse(
-          `{"${field}": ${['stock', 'extra'].includes(field) ? `${value}` : `"${value}"`}}`,
-        ),
-      };
-
-      return opts;
-    });
+  const handleAddOption = () => {
+    const {success, error} = ProductOptionsPostSchema.safeParse(option);
+    if (success) {
+      setOptions(o => [...o, option]);
+      setOption(o => {
+        return {...o, id: v4()};
+      });
+    }
+    if (error)
+      error.issues.map(i => {
+        setErrorPath(p => [...p, `${i.path}`]);
+        enqueueSnackbar(i.message, {variant: 'error'});
+      });
   };
+
+  function handleOptionChange<K extends keyof typeof option>(
+    field: K,
+    value: typeof option[K],
+  ) {
+    setOption(o => ({
+      ...o,
+      [field]: value,
+    }));
+  }
 
   return (
     <>
@@ -96,7 +113,7 @@ export function AddProductPage() {
           title="Add Product"
           action={
             <ButtonGroup>
-              <Button onClick={() => handleAddProduct()}>
+              <Button onClick={handleAddProduct}>
                 <SaveIcon />
               </Button>
             </ButtonGroup>
@@ -115,6 +132,7 @@ export function AddProductPage() {
             <TextField
               label="Title"
               value={product.title}
+              error={errorPath.includes('title')}
               fullWidth
               onChange={e =>
                 setProduct(p =>
@@ -131,6 +149,7 @@ export function AddProductPage() {
             <TextField
               label="Price"
               type="number"
+              error={errorPath.includes('price')}
               value={product.basePrice.toFixed(2)}
               fullWidth
               slotProps={{
@@ -158,6 +177,7 @@ export function AddProductPage() {
             multiline
             minRows={6}
             value={product.description}
+            error={errorPath.includes('description')}
             onChange={e =>
               setProduct(p =>
                 Product.from({
@@ -178,6 +198,7 @@ export function AddProductPage() {
               label="SKU"
               value={option.sku}
               onChange={e => handleOptionChange('sku', e.target.value)}
+              error={errorPath.includes('sku')}
             />
             <Box
               sx={{
@@ -188,12 +209,14 @@ export function AddProductPage() {
             >
               <TextField
                 label="Attribute"
+                error={errorPath.includes('attribute')}
                 fullWidth
                 value={option.attribute}
                 onChange={e => handleOptionChange('attribute', e.target.value)}
               />
               <TextField
                 label="Value"
+                error={errorPath.includes('value')}
                 fullWidth
                 value={option.value}
                 onChange={e => handleOptionChange('value', e.target.value)}
@@ -209,7 +232,8 @@ export function AddProductPage() {
               <TextField
                 label="Extra"
                 value={option.extra}
-                onChange={e => handleOptionChange('extra', e.target.value)}
+                error={errorPath.includes('extra')}
+                onChange={e => handleOptionChange('extra', Number(e.target.value))}
                 fullWidth
                 slotProps={{
                   input: {
@@ -222,8 +246,9 @@ export function AddProductPage() {
               <TextField
                 label="Stock"
                 fullWidth
+                error={errorPath.includes('stock')}
                 value={option.stock}
-                onChange={e => handleOptionChange('stock', e.target.value)}
+                onChange={e => handleOptionChange('stock', Number(e.target.value))}
               />
             </Box>
             <Box
@@ -236,13 +261,7 @@ export function AddProductPage() {
               <Button variant="outlined" fullWidth>
                 Reset
               </Button>
-              <Button
-                variant="contained"
-                fullWidth
-                onClick={() => {
-                  setOptions(o => [...o, option]);
-                }}
-              >
+              <Button variant="contained" fullWidth onClick={handleAddOption}>
                 Add Option
               </Button>
             </Box>
@@ -269,9 +288,9 @@ export function AddProductPage() {
           </Box>
           <TextField
             label="Image URL"
+            error={errorPath.includes('url')}
             value={imageUrl}
             onChange={e => setImageUrl(e.target.value)}
-            error={error !== ''}
             slotProps={{
               input: {
                 endAdornment: (
@@ -293,9 +312,11 @@ export function AddProductPage() {
                           );
                           setImageUrl('');
                         }
-                        if (error) {
-                          setError(`${error.issues.at(0)?.message}`);
-                        }
+                        if (error)
+                          error.issues.forEach(i => {
+                            setErrorPath(p => [...p, `${i.path}`]);
+                            enqueueSnackbar(i.message, {variant: 'error'});
+                          });
                       }}
                     >
                       <AddIcon />
@@ -309,18 +330,12 @@ export function AddProductPage() {
             variant="contained"
             fullWidth
             sx={{mt: '1rem'}}
-            onClick={() => handleAddProduct()}
+            onClick={handleAddProduct}
           >
             Add Product
           </Button>
         </CardContent>
       </Card>
-      <Snackbar
-        open={error !== ''}
-        autoHideDuration={6000}
-        onClose={() => setError('')}
-        message={<Alert severity="error">{error}</Alert>}
-      />
     </>
   );
 }

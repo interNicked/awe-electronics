@@ -97,7 +97,7 @@ model ProductOption {
   CartItem  CartItem[]
   OrderItem OrderItem[]
 
-  @@unique([productId, attribute, value])
+  @@unique([attribute, value])
 }
 
 model Category {
