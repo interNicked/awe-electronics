@@ -1,3 +1,11 @@
+## Prerequisites
+
+| Name | Link |
+|------|------|
+| Docker | https://www.docker.com/get-started/ |
+| node | https://nodejs.org/en/download |
+| yarn | https://classic.yarnpkg.com/lang/en/docs/install/ |
+
 ## Getting Started
 
 First, start the database with Docker:
@@ -5,12 +13,17 @@ First, start the database with Docker:
 ```bash
 docker compose up -d
 
-# Migrate DB and Generate Types
-cd src/
-npx prisma migrate dev --name init
-npx prisma generate
-```
+# Install Dependencies 
+yarn 
+# or
+npm install
 
+# Migrate DB and Generate Types 
+# (note: `yarn` can be replaced with `npm run`)
+cd src/
+yarn migrate init
+yarn generate
+```
 
 Now, run the development server:
 

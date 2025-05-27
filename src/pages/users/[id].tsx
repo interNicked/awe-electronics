@@ -1,7 +1,7 @@
 import {GetServerSidePropsContext} from 'next';
 import prisma from '@/prisma/index';
 import {notFound} from 'next/navigation';
-import Prisma from '@/prisma/generated';
+import Prisma from '@prisma/client';
 import {Card, CardHeader} from '@mui/material';
 import {Customer} from '@/lib/classes/Customer';
 

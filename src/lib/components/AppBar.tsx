@@ -1,5 +1,6 @@
 import AdbIcon from '@mui/icons-material/Adb';
 import MenuIcon from '@mui/icons-material/Menu';
+import {Badge} from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
@@ -11,13 +12,12 @@ import MenuItem from '@mui/material/MenuItem';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import {signIn, signOut, useSession} from 'next-auth/react';
 import Link from 'next/link';
 import * as React from 'react';
 import {useCart} from './hooks/useCart';
-import {Badge} from '@mui/material';
 
 const pages = ['Products', 'Cart'];
-const settings = ['Account', 'Logout'];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -43,6 +43,7 @@ function ResponsiveAppBar() {
   };
 
   const {state} = useCart();
+  const {data: session} = useSession();
 
   return (
     <AppBar position="static">
@@ -64,7 +65,7 @@ function ResponsiveAppBar() {
               textDecoration: 'none',
             }}
           >
-            LOGO
+            AWE
           </Typography>
 
           <Box sx={{flexGrow: 1, display: {xs: 'flex', md: 'none'}}}>
@@ -96,28 +97,25 @@ function ResponsiveAppBar() {
             >
               {pages.map(page =>
                 page === 'Cart' ? (
-                  <MenuItem
-                    key={page}
-                    onClick={handleCloseNavMenu}
-                    href={`/${page.toLowerCase()}`}
-                    LinkComponent={Link}
-                    sx={{width: '100%'}}
-                  >
-                    <Badge badgeContent={state.items.length} color="primary">
-                      <Typography sx={{textAlign: 'center', pr: '0.5rem'}}>
-                        {page}
-                      </Typography>
-                    </Badge>
-                  </MenuItem>
+                  <Link key={page} href={`/${page.toLowerCase()}`}>
+                    <MenuItem
+                      key={page}
+                      onClick={handleCloseNavMenu}
+                      sx={{width: '100%'}}
+                    >
+                      <Badge badgeContent={state.items.length} color="primary">
+                        <Typography sx={{textAlign: 'center', pr: '0.5rem'}}>
+                          {page}
+                        </Typography>
+                      </Badge>
+                    </MenuItem>
+                  </Link>
                 ) : (
-                  <MenuItem
-                    key={page}
-                    onClick={handleCloseNavMenu}
-                    href={`/${page.toLowerCase()}`}
-                    LinkComponent={Link}
-                  >
-                    <Typography sx={{textAlign: 'center'}}>{page}</Typography>
-                  </MenuItem>
+                  <Link key={page} href={`/${page.toLowerCase()}`}>
+                    <MenuItem onClick={handleCloseNavMenu}>
+                      <Typography sx={{textAlign: 'center'}}>{page}</Typography>
+                    </MenuItem>
+                  </Link>
                 ),
               )}
             </Menu>
@@ -139,7 +137,7 @@ function ResponsiveAppBar() {
               textDecoration: 'none',
             }}
           >
-            LOGO
+            AWE
           </Typography>
           <Box sx={{flexGrow: 1, display: {xs: 'none', md: 'flex'}}}>
             {pages.map(page =>
@@ -151,7 +149,11 @@ function ResponsiveAppBar() {
                   LinkComponent={Link}
                   sx={{py: 2, color: 'white', display: 'block'}}
                 >
-                  <Badge badgeContent={state.items.length} color="primary" sx={{px: '0.5rem'}}>
+                  <Badge
+                    badgeContent={state.items.length}
+                    color="primary"
+                    sx={{px: '0.5rem'}}
+                  >
                     {page}
                   </Badge>
                 </Button>
@@ -171,7 +173,7 @@ function ResponsiveAppBar() {
           <Box sx={{flexGrow: 0}}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt={session?.user.email} />
               </IconButton>
             </Tooltip>
             <Menu
@@ -190,11 +192,27 @@ function ResponsiveAppBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map(setting => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{textAlign: 'center'}}>{setting}</Typography>
-                </MenuItem>
-              ))}
+              {session?.user && (
+                <Link href="/account">
+                  <MenuItem>
+                    <Typography sx={{textAlign: 'center'}}>Account</Typography>
+                  </MenuItem>
+                </Link>
+              )}
+              {session?.user && (
+                <Link href="/orders">
+                  <MenuItem>
+                    <Typography sx={{textAlign: 'center'}}>Orders</Typography>
+                  </MenuItem>
+                </Link>
+              )}
+              <MenuItem
+                onClick={session?.user ? () => signOut() : () => signIn()}
+              >
+                <Typography sx={{textAlign: 'center'}}>
+                  {session?.user ? 'Logout' : 'Login'}
+                </Typography>
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>

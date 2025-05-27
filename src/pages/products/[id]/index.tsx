@@ -24,7 +24,7 @@ import {notFound} from 'next/navigation';
 import {useState} from 'react';
 import {v4} from 'uuid';
 import z from 'zod';
-import Prisma, {ProductOption} from '@/prisma/generated';
+import Prisma, {ProductOption} from '@prisma/client';
 
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';

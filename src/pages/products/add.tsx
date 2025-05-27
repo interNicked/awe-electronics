@@ -22,7 +22,7 @@ import {
 import {useState} from 'react';
 import {v4 as uuid} from 'uuid';
 import z from 'zod';
-import {ProductOption} from '@/prisma/generated';
+import {ProductOption} from '@prisma/client';
 import ProductOptionsCard from '@/lib/components/cards/ProductOptions';
 import {ProductPostSchema} from '@/lib/schemas/ProductPostSchema';
 

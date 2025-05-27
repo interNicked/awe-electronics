@@ -1,5 +1,5 @@
 import {createContext, useContext, useReducer, ReactNode} from 'react';
-import {CartItem} from '@/prisma/generated';
+import {CartItem} from '@prisma/client';
 import {v4} from 'uuid';
 
 type CartState = {id: string; items: CartItem[]};

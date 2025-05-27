@@ -15,7 +15,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import {ProductOption} from '@/prisma/generated';
+import {ProductOption} from '@prisma/client';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 

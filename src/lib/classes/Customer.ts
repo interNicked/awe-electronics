@@ -1,6 +1,6 @@
 import {User as UserClass} from './User';
 import {ShoppingCart} from './ShoppingCart';
-import Prisma from '@/prisma/generated';
+import Prisma from '@prisma/client';
 
 export class Customer extends UserClass {
   cart = new ShoppingCart(this);

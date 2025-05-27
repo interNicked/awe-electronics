@@ -1,7 +1,7 @@
 import {Category} from './Category';
 import { PrismaResource } from './PrismaResource';
 
-import Prisma from '@/prisma/generated';
+import Prisma from '@prisma/client';
 
 export class Product extends PrismaResource {  
   readonly id: string;

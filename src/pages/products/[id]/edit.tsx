@@ -3,7 +3,7 @@
 import {GetServerSidePropsContext, GetServerSidePropsResult} from 'next';
 import prisma from '@/prisma/index';
 import {notFound} from 'next/navigation';
-import Prisma, {ProductOption} from '@/prisma/generated';
+import Prisma, {ProductOption} from '@prisma/client';
 import {
   Box,
   Button,

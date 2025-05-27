@@ -9,7 +9,13 @@
     "lint": "gts lint",
     "clean": "gts clean",
     "fix": "gts fix",
+    "generate": "prisma generate --schema ./src/prisma",
+    "migrate": "prisma migrate dev --schema ./src/prisma --name",
+    "seed": "prisma db seed",
     "posttest": "yarn lint"
+  },
+  "prisma": {
+    "seed": "ts-node src/prisma/seed.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -21,6 +27,7 @@
     "@prisma/client": "6.3.0",
     "@prisma/extension-accelerate": "^1.2.1",
     "next": "^15.3.2",
+    "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "uuid": "^11.1.0",
@@ -34,6 +41,8 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.8",
     "gts": "^6.0.2",
+    "prisma": "^6.8.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   }
 }

@@ -1,4 +1,4 @@
-import Prisma from '@/prisma/generated';
+import Prisma from '@prisma/client';
 import {useState, useEffect} from 'react';
 
 export function useUsers() {
