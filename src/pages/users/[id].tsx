@@ -4,36 +4,65 @@ import {notFound} from 'next/navigation';
 import Prisma from '@prisma/client';
 import {Card, CardHeader} from '@mui/material';
 import {Customer} from '@/lib/classes/Customer';
+import {Admin} from '@/lib/classes/Admin';
+import CartCard from '@/lib/components/cards/CartCard';
+import {v4} from 'uuid';
+import {CartState} from '@/lib/components/hooks/useCart';
+import UserCard from '@/lib/components/cards/UserCard';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {id} = context.query;
 
   if (!id || Array.isArray(id)) notFound();
 
+  console.log({id});
+
   const user = await prisma.user.findUnique({
     where: {id},
   });
 
-  if (!user) notFound();
+  console.log({user});
 
-  const carts = await prisma.cart.findMany({
-    where: {userId: id},
+  if (!user) return {notFound: true};
+
+  const _user = user.role === 'customer' ? new Customer(user) : new Admin(user);
+
+  const cart = await prisma.cart.findFirst({
+    where: {userId: _user.id},
   });
+  const cartItems: Prisma.CartItem[] = [];
+
+  if (cart) {
+    cartItems.push(
+      ...((await prisma.cartItem.findMany({
+        where: {cartId: cart.id},
+      })) ?? []),
+    );
+  }
 
   return {
-    props: {user: Customer.serialize(user), carts},
+    props: {
+      user: _user.serialize(),
+      cart: cart
+        ? {
+            id: cart.id,
+          }
+        : null,
+    },
   };
 }
 
-export default function UserPage({user}: {user: Prisma.User}) {
+export default function UserPage({
+  user,
+  cart: cart,
+}: {
+  user: Prisma.User;
+  cart: CartState | null;
+}) {
   return (
     <>
-      <Card>
-        <CardHeader
-          title={user.email}
-          subheader={`Joined ${new Date(user.createdAt).toDateString()}`}
-        />
-      </Card>
+      <UserCard user={user} />
+      <CartCard cart={cart} showDiscounts={false} />
     </>
   );
 }

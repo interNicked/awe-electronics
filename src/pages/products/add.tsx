@@ -23,7 +23,7 @@ import {useState} from 'react';
 import {v4 as uuid, v4} from 'uuid';
 import z from 'zod';
 import {ProductOption} from '@prisma/client';
-import ProductOptionsCard from '@/lib/components/cards/ProductOptions';
+import ProductOptionsCard from '@/lib/components/cards/ProductOptionsCard';
 import {ProductPostSchema} from '@/lib/schemas/ProductPostSchema';
 import {ProductOptionsPostSchema} from '@/lib/schemas/ProductOptionPostSchema';
 import {useRouter} from 'next/router';
@@ -192,7 +192,7 @@ export function AddProductPage() {
         </CardContent>
         <CardHeader title="Options" />
         <CardContent>
-          <ProductOptionsCard options={options} />
+          <ProductOptionsCard options={options} editable={true}/>
           <Box sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
             <TextField
               label="SKU"

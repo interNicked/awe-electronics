@@ -18,8 +18,10 @@ import {
 import {ProductOption} from '@prisma/client';
 
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useSession } from 'next-auth/react';
 
-export function ProductOptionsCard({options}: {options: ProductOption[]}) {
+export function ProductOptionsCard({options, editable = false}: {options: ProductOption[], editable: boolean}) {
+  const {data: session} = useSession()
   const attributes = Object.groupBy(options, o => o.attribute);
   const keys = Object.keys(attributes);
 
@@ -64,7 +66,7 @@ export function ProductOptionsCard({options}: {options: ProductOption[]}) {
                       })
                       .map(a => {
                         return (
-                          <TableRow key={`attr-${a}`}>
+                          <TableRow key={`attr-${a.id}`}>
                             <TableCell>
                               <Tooltip title={`SKU: ${a.sku}`} arrow>
                                 <Typography sx={{width: 'fit-content'}}>
@@ -77,13 +79,14 @@ export function ProductOptionsCard({options}: {options: ProductOption[]}) {
                               {a.extra > 0 ? '+' : '-'} $
                               {Number(a.extra).toFixed(2)}
                             </TableCell>
+
                             <TableCell align="right">
-                              <IconButton
+                              {session?.user.role === 'admin' && editable && <IconButton
                                 sx={{':hover': {color: 'red'}}}
                                 onClick={() => handleDeleteOption(a.id)}
                               >
                                 <DeleteIcon />
-                              </IconButton>
+                              </IconButton>}
                             </TableCell>
                           </TableRow>
                         );

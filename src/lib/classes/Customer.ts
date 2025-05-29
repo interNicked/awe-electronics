@@ -1,6 +1,5 @@
 import {User as UserClass} from './User';
 import {ShoppingCart} from './ShoppingCart';
-import Prisma from '@prisma/client';
 
 export class Customer extends UserClass {
   cart = new ShoppingCart(this);
@@ -26,14 +25,6 @@ export class Customer extends UserClass {
 
   viewAccount() {
     return {id: this.id, email: this.email};
-  }
-
-  static serialize(customer: Customer | Prisma.User) {
-    return {
-      id: customer.id,
-      email: customer.email,
-      passwordHash: customer.passwordHash,
-    };
   }
 
   static Guest = new Customer({

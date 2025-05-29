@@ -32,18 +32,18 @@ export default function App({Component, pageProps}: AppProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <SessionProvider session={pageProps.session}>
-        <ThemeProvider theme={theme}>
-          <CartProvider>
+      <CartProvider>
+        <SessionProvider session={pageProps.session}>
+          <ThemeProvider theme={theme}>
             <SnackbarProvider maxSnack={5}>
               <ResponsiveAppBar />
               <Container maxWidth="md" sx={{width: '100%'}} component={Paper}>
                 <Component {...pageProps} />
               </Container>
             </SnackbarProvider>
-          </CartProvider>
-        </ThemeProvider>
-      </SessionProvider>
+          </ThemeProvider>
+        </SessionProvider>
+      </CartProvider>
     </>
   );
 }

@@ -1,13 +1,21 @@
-import {createContext, useContext, useReducer, ReactNode} from 'react';
+import {
+  createContext,
+  useContext,
+  useReducer,
+  ReactNode,
+  useEffect,
+} from 'react';
 import {CartItem} from '@prisma/client';
 import {v4} from 'uuid';
 
-type CartState = {id: string; items: CartItem[]};
+export type CartState = {id: string | null; items: CartItem[]};
 
 type CartAction =
-  | {type: 'ADD_ITEM'; payload: CartItem}
+  | {type: 'SET'; payload: CartState}
+  | {type: 'ADD_ITEM'; payload: CartItem & {id: string | null}}
   | {type: 'REMOVE_ITEM'; payload: {id: string}}
-  | {type: 'CLEAR'};
+  | {type: 'CLEAR'}
+  | {type: 'SAVE'};
 
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
@@ -42,6 +50,22 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     case 'CLEAR':
       return {id: state.id, items: []};
 
+    case 'SAVE':
+      fetch(`/api/carts${state.id ? `/${state.id}` : ''}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(state),
+      })
+        .then(res => console.log(res.ok ? 'Saved' : res.status))
+        .catch(e => console.error(e));
+      return state;
+
+    case 'SET':
+      const {id, items} = action.payload;
+      return {id, items};
+
     default:
       return state;
   }
@@ -49,22 +73,40 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
 const CartContext = createContext<{
   state: CartState;
+  setCart: (item: CartState) => void;
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
+  saveCart: () => void;
 } | null>(null);
 
 export const CartProvider = ({children}: {children: ReactNode}) => {
-  const [state, dispatch] = useReducer(cartReducer, {id: v4(), items: []});
+  const [state, dispatch] = useReducer(cartReducer, {id: null, items: []});
 
+  const setCart = (cart: CartState) => dispatch({type: 'SET', payload: cart});
   const addItem = (item: CartItem) =>
     dispatch({type: 'ADD_ITEM', payload: item});
   const removeItem = (id: string) =>
     dispatch({type: 'REMOVE_ITEM', payload: {id}});
   const clearCart = () => dispatch({type: 'CLEAR'});
+  const saveCart = () => dispatch({type: 'SAVE'});
+
+  useEffect(() => {
+    if (state.items.length === 0) {
+      const data = localStorage.getItem('cartState');
+      if (data) setCart(JSON.parse(data));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('cartState', JSON.stringify(state));
+    saveCart();
+  }, [state]);
 
   return (
-    <CartContext.Provider value={{state, addItem, removeItem, clearCart}}>
+    <CartContext.Provider
+      value={{state, addItem, removeItem, clearCart, saveCart, setCart}}
+    >
       {children}
     </CartContext.Provider>
   );

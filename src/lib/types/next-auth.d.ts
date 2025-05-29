@@ -1,25 +1,22 @@
+import Prisma from '@prisma/client';
 import NextAuth from 'next-auth';
 
 declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
+      createdAt: Date;
+      updatedAt: Date;
+      role: Prisma.$Enums.UserRole;
       email: string;
-      role: string;
+      passwordHash: string;
+      isVerified: boolean;
     };
   }
 
-  interface User {
-    id: string;
-    email: string;
-    role: string;
-  }
+  interface User extends Prisma.User {}
 }
 
 declare module 'next-auth/jwt' {
-  interface JWT {
-    id: string;
-    email: string;
-    role: string;
-  }
+  interface JWT extends Prisma.User {}
 }

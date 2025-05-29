@@ -1,6 +1,6 @@
 'use client';
 
-import ProductOptionsCard from '@/lib/components/cards/ProductOptions';
+import ProductOptionsCard from '@/lib/components/cards/ProductOptionsCard';
 import {Product} from '@/lib/classes/Product';
 import {ProductOptionsPostSchema} from '@/lib/schemas/ProductOptionPostSchema';
 import prisma from '@/prisma/index';
@@ -130,7 +130,7 @@ export default function ProductPage({
         </CardContent>
         <CardHeader title="Options" />
         <CardContent>
-          <ProductOptionsCard options={stateOptions} />
+          <ProductOptionsCard options={stateOptions} editable={false} />
         </CardContent>
       </Card>
     </>

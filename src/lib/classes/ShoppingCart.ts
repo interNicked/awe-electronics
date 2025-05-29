@@ -39,6 +39,4 @@ export class ShoppingCart {
   snapshot() {
     return structuredClone(this.items);
   }
-
-  static GuestCart = new ShoppingCart(Customer.Guest);
 }

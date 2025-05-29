@@ -1,3 +1,5 @@
+import Prisma from "@prisma/client";
+import { Customer } from "./Customer";
 import { PrismaResource } from "./PrismaResource";
 
 export abstract class User {
@@ -27,4 +29,12 @@ export abstract class User {
 
   abstract login(mfaToken: string): Promise<void>;
   abstract resetPassword(tempToken: string, newPassword: string): Promise<void>;
+
+  serialize() {
+    return {
+      id: this.id,
+      email: this.email,
+      passwordHash: this.passwordHash,
+    };
+  }
 }

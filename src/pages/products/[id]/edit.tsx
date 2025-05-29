@@ -1,7 +1,7 @@
 'use client';
 
 import {Product} from '@/lib/classes/Product';
-import ProductOptionsCard from '@/lib/components/cards/ProductOptions';
+import ProductOptionsCard from '@/lib/components/cards/ProductOptionsCard';
 import {ProductOptionsPostSchema} from '@/lib/schemas/ProductOptionPostSchema';
 import prisma from '@/prisma/index';
 import {
@@ -169,7 +169,7 @@ export default function ProductPage({
         </CardContent>
         <CardHeader title="Options" />
         <CardContent>
-          <ProductOptionsCard options={stateOptions} />
+          <ProductOptionsCard options={stateOptions} editable={true} />
           <Box
             sx={{
               display: 'flex',
