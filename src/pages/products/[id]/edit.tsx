@@ -20,12 +20,12 @@ import Prisma, {ProductOption} from '@prisma/client';
 import {GetServerSidePropsContext} from 'next';
 import Image from 'next/image';
 import {notFound} from 'next/navigation';
-import {useState} from 'react';
-import {v4} from 'uuid';
 import {useSnackbar} from 'notistack';
+import {useState} from 'react';
 import z from 'zod';
 
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {id} = context.query;
@@ -72,7 +72,7 @@ export default function ProductPage({
 
   function handleOptionChange<K extends keyof typeof option>(
     field: K,
-    value: typeof option[K],
+    value: (typeof option)[K],
   ) {
     setOption(o => ({
       ...o,
@@ -97,6 +97,16 @@ export default function ProductPage({
       }
     }
     if (error) console.error({error});
+  };
+
+  const handleDeleteOption = async (id: string) => {
+    const {productId} = options[0];
+    if (!productId) throw new Error('Missing Product ID');
+    const res = await fetch(`/api/products/${productId}/options/${id}`, {
+      method: 'DELETE',
+    });
+
+    console.log({ok: res.ok});
   };
 
   return (
@@ -169,7 +179,17 @@ export default function ProductPage({
         </CardContent>
         <CardHeader title="Options" />
         <CardContent>
-          <ProductOptionsCard options={stateOptions} editable={true} />
+          <ProductOptionsCard
+            options={stateOptions}
+            actions={({a}) => (
+              <IconButton
+                sx={{':hover': {color: 'red'}}}
+                onClick={() => handleDeleteOption(a.id)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            )}
+          />
           <Box
             sx={{
               display: 'flex',
@@ -213,7 +233,9 @@ export default function ProductPage({
               <TextField
                 label="Extra"
                 value={option.extra}
-                onChange={e => handleOptionChange('extra', Number(e.target.value))}
+                onChange={e =>
+                  handleOptionChange('extra', Number(e.target.value))
+                }
                 fullWidth
                 slotProps={{
                   input: {
@@ -227,7 +249,9 @@ export default function ProductPage({
                 label="Stock"
                 fullWidth
                 value={option.stock}
-                onChange={e => handleOptionChange('stock', Number(e.target.value))}
+                onChange={e =>
+                  handleOptionChange('stock', Number(e.target.value))
+                }
               />
             </Box>
             <Box

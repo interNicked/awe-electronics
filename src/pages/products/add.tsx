@@ -1,35 +1,33 @@
 'use client';
-import Image from 'next/image';
-import useProducts from '@/lib/components/hooks/useProducts';
 import {Product} from '@/lib/classes/Product';
+import ProductOptionsCard from '@/lib/components/cards/ProductOptionsCard';
+import useProducts from '@/lib/components/hooks/useProducts';
+import {ProductOptionsPostSchema} from '@/lib/schemas/ProductOptionPostSchema';
+import {ProductPostSchema} from '@/lib/schemas/ProductPostSchema';
 import {
-  Alert,
   Box,
   Button,
   ButtonGroup,
   Card,
-  CardActionArea,
   CardContent,
   CardHeader,
   IconButton,
   InputAdornment,
   ListItem,
   ListItemIcon,
-  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
+import {ProductOption} from '@prisma/client';
+import Image from 'next/image';
+import {useRouter} from 'next/router';
+import {useSnackbar} from 'notistack';
 import {useState} from 'react';
 import {v4 as uuid, v4} from 'uuid';
 import z from 'zod';
-import {ProductOption} from '@prisma/client';
-import ProductOptionsCard from '@/lib/components/cards/ProductOptionsCard';
-import {ProductPostSchema} from '@/lib/schemas/ProductPostSchema';
-import {ProductOptionsPostSchema} from '@/lib/schemas/ProductOptionPostSchema';
-import {useRouter} from 'next/router';
-import {useSnackbar, VariantType} from 'notistack';
 
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 
 export function AddProductPage() {
@@ -98,13 +96,23 @@ export function AddProductPage() {
 
   function handleOptionChange<K extends keyof typeof option>(
     field: K,
-    value: typeof option[K],
+    value: (typeof option)[K],
   ) {
     setOption(o => ({
       ...o,
       [field]: value,
     }));
   }
+
+  const handleDeleteOption = async (id: string) => {
+    const {productId} = options[0];
+    if (!productId) throw new Error('Missing Product ID');
+    const res = await fetch(`/api/products/${productId}/options/${id}`, {
+      method: 'DELETE',
+    });
+
+    console.log({ok: res.ok});
+  };
 
   return (
     <>
@@ -192,7 +200,17 @@ export function AddProductPage() {
         </CardContent>
         <CardHeader title="Options" />
         <CardContent>
-          <ProductOptionsCard options={options} editable={true}/>
+          <ProductOptionsCard
+            options={options}
+            actions={({a}) => (
+              <IconButton
+                sx={{':hover': {color: 'red'}}}
+                onClick={() => handleDeleteOption(a.id)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            )}
+          />
           <Box sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
             <TextField
               label="SKU"
@@ -233,7 +251,9 @@ export function AddProductPage() {
                 label="Extra"
                 value={option.extra}
                 error={errorPath.includes('extra')}
-                onChange={e => handleOptionChange('extra', Number(e.target.value))}
+                onChange={e =>
+                  handleOptionChange('extra', Number(e.target.value))
+                }
                 fullWidth
                 slotProps={{
                   input: {
@@ -248,7 +268,9 @@ export function AddProductPage() {
                 fullWidth
                 error={errorPath.includes('stock')}
                 value={option.stock}
-                onChange={e => handleOptionChange('stock', Number(e.target.value))}
+                onChange={e =>
+                  handleOptionChange('stock', Number(e.target.value))
+                }
               />
             </Box>
             <Box

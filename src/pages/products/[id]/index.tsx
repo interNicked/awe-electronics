@@ -1,37 +1,30 @@
 'use client';
 
-import ProductOptionsCard from '@/lib/components/cards/ProductOptionsCard';
 import {Product} from '@/lib/classes/Product';
-import {ProductOptionsPostSchema} from '@/lib/schemas/ProductOptionPostSchema';
+import ProductOptionsCard from '@/lib/components/cards/ProductOptionsCard';
+import {useCart} from '@/lib/components/hooks/useCart';
 import prisma from '@/prisma/index';
 import {
-  Box,
   Button,
   ButtonGroup,
   Card,
   CardContent,
   CardHeader,
-  IconButton,
+  FormControlLabel,
   ImageList,
   ImageListItem,
-  InputAdornment,
-  TextField,
-  Typography,
+  Radio,
+  RadioGroup,
 } from '@mui/material';
+import Prisma, {ProductOption} from '@prisma/client';
 import {GetServerSidePropsContext} from 'next';
+import {useSession} from 'next-auth/react';
 import Image from 'next/image';
 import {notFound} from 'next/navigation';
 import {useState} from 'react';
 import {v4} from 'uuid';
-import z from 'zod';
-import Prisma, {ProductOption} from '@prisma/client';
 
-import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import ResetIcon from '@mui/icons-material/Undo';
-import {useCart} from '@/lib/components/hooks/useCart';
-import {useSession} from 'next-auth/react';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {id} = context.query;
@@ -63,11 +56,13 @@ export default function ProductPage({
   options: Prisma.ProductOption[];
 }) {
   const [stateOptions, setStateOptions] = useState<ProductOption[]>(options);
-  const [selectedOption, setSelectedOption] = useState(options.at(0));
+  const [selectedOption, setSelectedOption] = useState<
+    ProductOption | undefined
+  >(options.at(0));
   const [images] = useState(product.images);
   const {data: session} = useSession();
 
-  const {addItem, state} = useCart();
+  const {addItem, setCartId, state} = useCart();
 
   return (
     <>
@@ -77,7 +72,7 @@ export default function ProductPage({
           subheader={product.description}
           action={
             <ButtonGroup variant="contained">
-              <Button disabled>
+              <Button disabled sx={{fontWeight: 'bold'}}>
                 $
                 {(selectedOption
                   ? product.basePrice + selectedOption.extra
@@ -86,13 +81,15 @@ export default function ProductPage({
               </Button>
               <Button
                 onClick={() => {
-                  console.log({state});
+                  const cartId = state.id ?? v4()
+                  if(!state.id)
+                    setCartId(cartId)
                   addItem({
+                    cartId,
                     id: v4(),
                     title: selectedOption
                       ? `${product.title} - ${selectedOption?.value}`
                       : product.title,
-                    cartId: state.id,
                     productId: product.id,
                     basePrice: product.basePrice,
                     extraPrice: selectedOption?.extra ?? 0,
@@ -130,7 +127,19 @@ export default function ProductPage({
         </CardContent>
         <CardHeader title="Options" />
         <CardContent>
-          <ProductOptionsCard options={stateOptions} editable={false} />
+          <RadioGroup
+            value={selectedOption?.id}
+            onChange={e =>
+              setSelectedOption(stateOptions.find(o => o.id === e.target.value))
+            }
+          >
+            <ProductOptionsCard
+              options={stateOptions}
+              actions={({a}) => (
+                <FormControlLabel value={a.id} control={<Radio />} label="" />
+              )}
+            />
+          </RadioGroup>
         </CardContent>
       </Card>
     </>

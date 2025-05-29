@@ -12,6 +12,7 @@ export type CartState = {id: string | null; items: CartItem[]};
 
 type CartAction =
   | {type: 'SET'; payload: CartState}
+  | {type: 'SET_ID'; payload: CartState['id']}
   | {type: 'ADD_ITEM'; payload: CartItem & {id: string | null}}
   | {type: 'REMOVE_ITEM'; payload: {id: string}}
   | {type: 'CLEAR'}
@@ -51,20 +52,16 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return {id: state.id, items: []};
 
     case 'SAVE':
-      fetch(`/api/carts${state.id ? `/${state.id}` : ''}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(state),
-      })
-        .then(res => console.log(res.ok ? 'Saved' : res.status))
-        .catch(e => console.error(e));
       return state;
 
     case 'SET':
       const {id, items} = action.payload;
       return {id, items};
+
+    case 'SET_ID':
+      const newState = {id: action.payload, items: state.items}
+      saveCart(newState)
+      return newState;
 
     default:
       return state;
@@ -74,6 +71,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 const CartContext = createContext<{
   state: CartState;
   setCart: (item: CartState) => void;
+  setCartId: (item: CartState['id']) => void;
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
@@ -84,6 +82,8 @@ export const CartProvider = ({children}: {children: ReactNode}) => {
   const [state, dispatch] = useReducer(cartReducer, {id: null, items: []});
 
   const setCart = (cart: CartState) => dispatch({type: 'SET', payload: cart});
+  const setCartId = (cartId: CartState['id']) =>
+    dispatch({type: 'SET_ID', payload: cartId});
   const addItem = (item: CartItem) =>
     dispatch({type: 'ADD_ITEM', payload: item});
   const removeItem = (id: string) =>
@@ -105,7 +105,15 @@ export const CartProvider = ({children}: {children: ReactNode}) => {
 
   return (
     <CartContext.Provider
-      value={{state, addItem, removeItem, clearCart, saveCart, setCart}}
+      value={{
+        state,
+        addItem,
+        removeItem,
+        clearCart,
+        saveCart,
+        setCart,
+        setCartId,
+      }}
     >
       {children}
     </CartContext.Provider>
@@ -117,3 +125,15 @@ export const useCart = () => {
   if (!ctx) throw new Error('useCart must be used inside a <CartProvider>');
   return ctx;
 };
+
+const saveCart = (state: CartState) => {
+  fetch(`/api/carts${state.id ? `/${state.id}` : ''}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(state),
+      })
+        .then(res => console.log(res.ok ? 'Saved' : res.status))
+        .catch(e => console.error(e));
+}

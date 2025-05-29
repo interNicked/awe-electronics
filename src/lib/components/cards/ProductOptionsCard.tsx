@@ -4,9 +4,14 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Checkbox,
   Container,
+  FormControl,
+  FormControlLabel,
   IconButton,
   Paper,
+  Radio,
+  RadioGroup,
   Table,
   TableBody,
   TableCell,
@@ -17,23 +22,19 @@ import {
 } from '@mui/material';
 import {ProductOption} from '@prisma/client';
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import { useSession } from 'next-auth/react';
+import {useSession} from 'next-auth/react';
+import {JSX} from 'react';
 
-export function ProductOptionsCard({options, editable = false}: {options: ProductOption[], editable: boolean}) {
-  const {data: session} = useSession()
+export function ProductOptionsCard({
+  options,
+  actions: Actions = () => <></>,
+}: {
+  options: ProductOption[];
+  actions?: ({a}: {a: ProductOption}) => JSX.Element;
+}) {
+  const {data: session} = useSession();
   const attributes = Object.groupBy(options, o => o.attribute);
   const keys = Object.keys(attributes);
-
-  const handleDeleteOption = async (id: string) => {
-    const {productId} = options[0];
-    if (!productId) throw new Error('Missing Product ID');
-    const res = await fetch(`/api/products/${productId}/options/${id}`, {
-      method: 'DELETE',
-    });
-
-    console.log({ok: res.ok})
-  };
 
   return (
     <>
@@ -81,12 +82,7 @@ export function ProductOptionsCard({options, editable = false}: {options: Produc
                             </TableCell>
 
                             <TableCell align="right">
-                              {session?.user.role === 'admin' && editable && <IconButton
-                                sx={{':hover': {color: 'red'}}}
-                                onClick={() => handleDeleteOption(a.id)}
-                              >
-                                <DeleteIcon />
-                              </IconButton>}
+                              <Actions a={a} />
                             </TableCell>
                           </TableRow>
                         );

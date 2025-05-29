@@ -12,8 +12,8 @@ import {
   TableRow,
 } from '@mui/material';
 import Link from 'next/link';
-import {useState} from 'react';
-import {CartState, useCart} from '../hooks/useCart';
+import { useState } from 'react';
+import { CartState, useCart } from '../hooks/useCart';
 
 export function CartCard({
   cart: _cart,
@@ -26,6 +26,8 @@ export function CartCard({
   const [discounts, setDiscounts] = useState([]);
 
   const cart = _cart ?? state;
+
+  console.log({cart})
 
   return (
     <Card>
@@ -88,14 +90,6 @@ export function CartCard({
             </TableRow>
           </TableFooter>
         </Table>
-        <Button
-          variant="outlined"
-          fullWidth
-          sx={{my: '1rem'}}
-          disabled={state.items.length === 0}
-        >
-          Checkout
-        </Button>
       </CardContent>
     </Card>
   );
