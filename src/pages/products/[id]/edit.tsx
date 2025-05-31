@@ -7,6 +7,7 @@ import prisma from '@/prisma/index';
 import {
   Box,
   Button,
+  ButtonGroup,
   Card,
   CardContent,
   CardHeader,
@@ -26,6 +27,9 @@ import z from 'zod';
 
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import {useRouter} from 'next/router';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {id} = context.query;
@@ -69,6 +73,7 @@ export default function ProductPage({
     productId: product.id,
   });
   const {enqueueSnackbar} = useSnackbar();
+  const router = useRouter();
 
   function handleOptionChange<K extends keyof typeof option>(
     field: K,
@@ -109,13 +114,41 @@ export default function ProductPage({
     console.log({ok: res.ok});
   };
 
+  const handleDeleteProduct = async () => {
+    const {productId} = options[0];
+    if (!productId) throw new Error('Missing Product ID');
+    const res = await fetch(`/api/products/${productId}`, {
+      method: 'DELETE',
+    });
+
+    if (res.ok)
+      router
+        .push('/products')
+        .finally(() =>
+          enqueueSnackbar('Product Deleted', {variant: 'success'}),
+        );
+    else enqueueSnackbar('Failed to delete product', {variant: 'error'});
+  };
+
   return (
     <>
       <Card>
-        <CardHeader title={product.title} subheader={product.description} />
+        <CardHeader
+          title={product.title}
+          subheader={product.description}
+          action={
+            <Button
+              color="error"
+              variant="outlined"
+              onClick={handleDeleteProduct}
+            >
+              <DeleteIcon />
+            </Button>
+          }
+        />
         <CardContent>
           {images.length > 0 && (
-            <ImageList sx={{width: 500, height: 450}} cols={3} rowHeight={164}>
+            <ImageList sx={{mb: '2rem'}} cols={3} rowHeight={164}>
               {images.map((img, i) => (
                 <ImageListItem key={img}>
                   <Image

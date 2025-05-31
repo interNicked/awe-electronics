@@ -60,24 +60,35 @@ export default async function handler(
         ...req.body,
         ...req.query,
       });
-      if(putError){
+      if (putError) {
         res.status(400).json(putError);
         return;
       }
-      if(putData.id){
+      if (putData.id) {
         const product = await prisma.product.update({
           where: {id: putData.id},
-          data: putData
-        })
+          data: putData,
+        });
 
         if (!product) {
           notFound();
         }
 
-        res.send(product)
+        res.send(product);
       }
 
       break;
+
+    case 'DELETE':
+      if (!req.query.id || Array.isArray(req.query.id)) {
+        res.status(400).send('Error: Missing ID');
+        return;
+      } else {
+        const p = await prisma.product.delete({where: {id: req.query.id}});
+
+        res.json(p);
+      }
+      return;
 
     default:
       res.status(405).send(`Error: method not allowed`);
