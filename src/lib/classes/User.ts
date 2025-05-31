@@ -6,6 +6,7 @@ export abstract class User {
   id: string;
   email: string;
   passwordHash: string;
+  abstract role: Prisma.$Enums.UserRole
 
   protected constructor({
     id,
@@ -21,20 +22,12 @@ export abstract class User {
     this.passwordHash = passwordHash;
   }
 
-  /** Register & verify email flow */
-  static register(email: string, rawPassword: string): User {
-    // delegate to service that hashes + stores, then send verification
-    throw new Error('implemented in application layer');
-  }
-
-  abstract login(mfaToken: string): Promise<void>;
-  abstract resetPassword(tempToken: string, newPassword: string): Promise<void>;
-
   serialize() {
     return {
       id: this.id,
       email: this.email,
       passwordHash: this.passwordHash,
+      role: this.role,
     };
   }
 }

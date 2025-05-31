@@ -137,7 +137,16 @@ export function AddressForm({
 
   useEffect(() => {
     const getAddress = async () => {
-      try {
+      const local = localStorage.getItem('addresses');
+      if (local) {
+        const addresses = JSON.parse(local) as Address[];
+        const _billing = addresses.find(a => a.type === 'BillingAddress');
+        const _delivery = addresses.find(a => a.type === 'DeliveryAddress');
+
+        console.log({addresses, _billing, _delivery});
+        if (_billing) setBilling(_billing);
+        if (_delivery) setDelivery(_delivery);
+      } else if (session?.user.id) {
         const res = await fetch(`/api/users/${session?.user.id}/addresses`);
         const address = (await res.json()) as Address[];
         console.log({
@@ -148,12 +157,10 @@ export function AddressForm({
 
         if (_billing) setBilling(_billing);
         if (_delivery) setDelivery(_delivery);
-      } catch (error) {
-        console.error(error);
       }
     };
 
-    if (session?.user.id) getAddress();
+    getAddress();
   }, [session]);
 
   return (
