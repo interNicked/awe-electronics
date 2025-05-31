@@ -62,6 +62,38 @@ const productData = [
       },
     },
   },
+  {
+    id: 'facade00-0000-4000-a000-000000000003',
+    title: 'Macbook Pro',
+    description: 'Made in California',
+    basePrice: 3000,
+    images: [
+      'https://www.apple.com/v/macbook-pro-13/p/images/meta/macbook-pro-13_overview__bcsyunk73i2a_og.jpg',
+    ],
+    status: Prisma.$Enums.ProductStatus.available,
+    options: {
+      createMany: {
+        data: [
+          {
+            id: 'f84b2e4a-36a9-4c00-bfad-6c42b89ae09b',
+            attribute: 'SIZE',
+            value: '16 inch',
+            stock: 10,
+            extra: 250,
+            sku: 'MACBOOKPRO-1a',
+          },
+          {
+            id: 'a33217bc-fb98-481a-8a7b-00d2dc320600',
+            attribute: 'SIZE',
+            value: '14 inch',
+            stock: 10,
+            extra: 400,
+            sku: 'MACBOOKPRO-1b',
+          },
+        ],
+      },
+    }
+  },
 ];
 
 async function main() {

@@ -7,6 +7,7 @@ import {notFound} from 'next/navigation';
 import z from 'zod';
 import prisma from '../../../../prisma';
 import {authOptions} from '../../auth/[...nextauth]';
+import { v4 } from 'uuid';
 
 const PostSchema = z.object({
   userId: z.string().uuid(),
@@ -51,7 +52,7 @@ export default async function handler(
 
       const addresses = await prisma.address.createManyAndReturn({
         data: postData.addresses.map(a => {
-          return {...a, userId: postData.userId};
+          return {...a, userId: session?.user.id, id: v4()};
         }),
       });
 

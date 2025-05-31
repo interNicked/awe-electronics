@@ -7,8 +7,9 @@ import {notFound} from 'next/navigation';
 import {getServerSession} from 'next-auth';
 import {authOptions} from '../auth/[...nextauth]';
 import OrderSchema from '@/lib/schemas/OrderSchema';
+import { v4 } from 'uuid';
 
-const PostSchema = OrderSchema
+const PostSchema = OrderSchema;
 
 const GetSchema = z.object({
   id: z.string().uuid().optional(),
@@ -52,21 +53,15 @@ export default async function handler(
         return;
       }
 
+      const orderId = v4()
       const order = await prisma.order.create({
         data: {
+          id: orderId,
           total: postData.total,
           userId: session?.user.id,
           items: {create: postData.items},
           billingAddressId: billingAddress.id,
-          shipment: {
-            create: {
-              address: {
-                connect: {
-                  id: deliveryAddress.id,
-                },
-              },
-            },
-          },
+          deliveryAddressId: deliveryAddress.id
         },
       });
 
