@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Box,
   Grid,
@@ -11,21 +11,12 @@ import {
   CardHeader,
   CardContent,
 } from '@mui/material';
-import {z} from 'zod';
+import Prisma from '@prisma/client';
+import {useSession} from 'next-auth/react';
+import {useSnackbar} from 'notistack';
+import AddressSchema, {Address} from '../schemas/AddressSchema';
 
-const addressSchema = z.object({
-  fullName: z.string().min(1, 'Full name is required'),
-  addressLine1: z.string().min(1, 'Address Line 1 is required'),
-  addressLine2: z.string().optional(),
-  city: z.string().min(1, 'City is required'),
-  state: z.string().min(1, 'State is required'),
-  postcode: z.string().min(4, 'Postcode must be at least 4 characters'),
-  country: z.string().min(1, 'Country is required'),
-});
-
-type Address = z.infer<typeof addressSchema>;
-
-const emptyAddress: Address = {
+const emptyAddress = {
   fullName: '',
   addressLine1: '',
   addressLine2: '',
@@ -35,51 +26,84 @@ const emptyAddress: Address = {
   country: '',
 };
 
-export function AddressForm() {
-  const [billing, setBilling] = useState<Address>({...emptyAddress});
-  const [delivery, setDelivery] = useState<Address>({...emptyAddress});
+export function AddressForm({
+  addresses = [],
+  editable = true,
+}: {
+  addresses?: Address[];
+  editable?: boolean;
+}) {
+  const {data: session} = useSession();
+  const {enqueueSnackbar} = useSnackbar();
+  const [billing, setBilling] = useState<Address>({
+    ...emptyAddress,
+    type: 'BillingAddress',
+    status: 'CurrentAddress',
+  });
+  const [delivery, setDelivery] = useState<Address>({
+    ...emptyAddress,
+    type: 'DeliveryAddress',
+    status: 'CurrentAddress',
+  });
   const [sameAsBilling, setSameAsBilling] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange =
-    (section: 'billing' | 'delivery', field: keyof Address) =>
+    (type: Prisma.$Enums.AddressType, field: keyof Address) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const update = section === 'billing' ? {...billing} : {...delivery};
+      if (field === 'type' || field === 'status') return;
+
+      const update = type === 'BillingAddress' ? {...billing} : {...delivery};
       update[field] = event.target.value;
 
-      section === 'billing' ? setBilling(update) : setDelivery(update);
+      type === 'BillingAddress' ? setBilling(update) : setDelivery(update);
     };
 
-  const validateAndSubmit = () => {
-    const billingResult = addressSchema.safeParse(billing);
-    const deliveryResult = addressSchema.safeParse(delivery);
+  const validateAndSubmit = async () => {
+    const billingResult = AddressSchema.safeParse(billing);
+    const deliveryResult = AddressSchema.safeParse(delivery);
 
     const newErrors: Record<string, string> = {};
 
     if (!billingResult.success) {
       for (const issue of billingResult.error.issues) {
-        newErrors[`billing.${issue.path[0]}`] = issue.message;
+        newErrors[`BillingAddress.${issue.path[0]}`] = issue.message;
       }
     }
 
     if (!sameAsBilling && !deliveryResult.success) {
       for (const issue of deliveryResult.error.issues) {
-        newErrors[`delivery.${issue.path[0]}`] = issue.message;
+        newErrors[`DeliveryAddress.${issue.path[0]}`] = issue.message;
       }
     }
 
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      const submittedDelivery = sameAsBilling ? billing : delivery;
-      console.log('Billing:', billing);
-      console.log('Delivery:', submittedDelivery);
-      alert('Form submitted!');
+      const submittedDelivery = sameAsBilling
+        ? {...billing, type: 'DeliveryAddress'}
+        : delivery;
+      const res = await fetch(
+        session?.user.id
+          ? `/api/users/${session.user.id}/addresses`
+          : '/api/addresses',
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            addresses: [billing, submittedDelivery],
+          }),
+        },
+      );
+      if (res.ok) {
+        localStorage.setItem('addresses', JSON.stringify(await res.json()));
+        enqueueSnackbar('Address Saved', {variant: 'success'});
+      } else enqueueSnackbar('An error occured!', {variant: 'error'});
     }
   };
 
   const renderAddressFields = (
-    prefix: 'billing' | 'delivery',
+    prefix: 'BillingAddress' | 'DeliveryAddress',
     address: Address,
   ) => (
     <>
@@ -111,6 +135,27 @@ export function AddressForm() {
     </>
   );
 
+  useEffect(() => {
+    const getAddress = async () => {
+      try {
+        const res = await fetch(`/api/users/${session?.user.id}/addresses`);
+        const address = (await res.json()) as Address[];
+        console.log({
+          address: address.filter(a => a.status === 'CurrentAddress'),
+        });
+        const _billing = address.find(a => a.type === 'BillingAddress');
+        const _delivery = address.find(a => a.type === 'DeliveryAddress');
+
+        if (_billing) setBilling(_billing);
+        if (_delivery) setDelivery(_delivery);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (session?.user.id) getAddress();
+  }, [session]);
+
   return (
     <Card>
       <CardHeader
@@ -131,7 +176,7 @@ export function AddressForm() {
       />
       <CardContent>
         <Grid container spacing={2}>
-          {renderAddressFields('billing', billing)}
+          {renderAddressFields('BillingAddress', billing)}
         </Grid>
       </CardContent>
 
@@ -143,15 +188,24 @@ export function AddressForm() {
               Delivery Address
             </Typography>
             <Grid container spacing={2}>
-              {renderAddressFields('delivery', delivery)}
+              {renderAddressFields('DeliveryAddress', delivery)}
             </Grid>
           </CardContent>
         </>
       )}
 
       <CardContent>
-        <Button variant="outlined" onClick={validateAndSubmit} fullWidth>
-          PROCEED TO PAYMENT
+        <Button
+          variant="outlined"
+          onClick={validateAndSubmit}
+          fullWidth
+          color="inherit"
+          sx={{
+            borderImage:
+              'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%) 1',
+          }}
+        >
+          Save
         </Button>
       </CardContent>
     </Card>

@@ -14,7 +14,7 @@ type CartAction =
   | {type: 'SET'; payload: CartState}
   | {type: 'SET_ID'; payload: CartState['id']}
   | {type: 'ADD_ITEM'; payload: CartItem & {id: string | null}}
-  | {type: 'REMOVE_ITEM'; payload: {id: string}}
+  | {type: 'REMOVE_ITEM'; payload: {id: string; quantity?: number}}
   | {type: 'CLEAR'}
   | {type: 'SAVE'};
 
@@ -43,6 +43,16 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     }
 
     case 'REMOVE_ITEM':
+      if (action.payload.quantity) {
+        const {quantity} = action.payload;
+        return {
+          id: state.id,
+          items: state.items.map(i => {
+            if (i.id !== action.payload.id) return i;
+            else return {...i, quantity: i.quantity - quantity};
+          }),
+        };
+      }
       return {
         id: state.id,
         items: state.items.filter(i => i.id !== action.payload.id),
@@ -59,8 +69,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return {id, items};
 
     case 'SET_ID':
-      const newState = {id: action.payload, items: state.items}
-      saveCart(newState)
+      const newState = {id: action.payload, items: state.items};
+      saveCart(newState);
       return newState;
 
     default:
@@ -73,9 +83,10 @@ const CartContext = createContext<{
   setCart: (item: CartState) => void;
   setCartId: (item: CartState['id']) => void;
   addItem: (item: CartItem) => void;
-  removeItem: (id: string) => void;
+  removeItem: (id: string, quantity?: number) => void;
   clearCart: () => void;
   saveCart: () => void;
+  getTotal: () => number;
 } | null>(null);
 
 export const CartProvider = ({children}: {children: ReactNode}) => {
@@ -86,10 +97,16 @@ export const CartProvider = ({children}: {children: ReactNode}) => {
     dispatch({type: 'SET_ID', payload: cartId});
   const addItem = (item: CartItem) =>
     dispatch({type: 'ADD_ITEM', payload: item});
-  const removeItem = (id: string) =>
-    dispatch({type: 'REMOVE_ITEM', payload: {id}});
+  const removeItem = (id: string, quantity: number | undefined = undefined) =>
+    dispatch({type: 'REMOVE_ITEM', payload: {id, quantity}});
   const clearCart = () => dispatch({type: 'CLEAR'});
   const saveCart = () => dispatch({type: 'SAVE'});
+
+  const getTotal = () =>
+    state.items.reduce(
+      (pv, cv) => (pv += cv.quantity * (cv.basePrice + cv.extraPrice)),
+      0,
+    );
 
   useEffect(() => {
     if (state.items.length === 0) {
@@ -113,6 +130,7 @@ export const CartProvider = ({children}: {children: ReactNode}) => {
         saveCart,
         setCart,
         setCartId,
+        getTotal
       }}
     >
       {children}
@@ -128,12 +146,12 @@ export const useCart = () => {
 
 const saveCart = (state: CartState) => {
   fetch(`/api/carts${state.id ? `/${state.id}` : ''}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(state),
-      })
-        .then(res => console.log(res.ok ? 'Saved' : res.status))
-        .catch(e => console.error(e));
-}
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(state),
+  })
+    .then(res => console.log(res.ok ? 'Saved' : res.status))
+    .catch(e => console.error(e));
+};

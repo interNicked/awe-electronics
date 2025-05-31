@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 const userData = [
   {
-    id: '00000000-00000000-00000000-00000001',
+    id: 'facade00-0000-4000-a000-000000000001',
     email: 'admin@admin.com',
     passwordHash:
       '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', // password
@@ -23,7 +23,7 @@ const userData = [
 
 const productData = [
   {
-    id: '491f95f6-afe3-4287-8f46-168825dc5e7d',
+    id: 'facade00-0000-4000-a000-000000000002',
     title: 'iPhone',
     description: 'Made in California',
     basePrice: 1000,

@@ -3,6 +3,7 @@ import {
   Card,
   CardContent,
   CardHeader,
+  IconButton,
   Link as MLink,
   Table,
   TableBody,
@@ -10,39 +11,44 @@ import {
   TableFooter,
   TableHead,
   TableRow,
+  Tooltip,
 } from '@mui/material';
 import Link from 'next/link';
-import { useState } from 'react';
-import { CartState, useCart } from '../hooks/useCart';
+import {useState} from 'react';
+import {CartState, useCart} from '../hooks/useCart';
+
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 export function CartCard({
   cart: _cart,
   showDiscounts = true,
+  editable = true,
 }: {
   cart?: CartState | null;
   showDiscounts?: boolean;
+  editable?: boolean;
 }) {
-  const {state} = useCart();
+  const {state, removeItem, addItem, getTotal} = useCart();
   const [discounts, setDiscounts] = useState([]);
 
   const cart = _cart ?? state;
 
-  console.log({cart})
+  const handleRemoveFromCart = (id: string, quantity: number = 1) =>
+    removeItem(id, quantity);
+  const handleRemoveAllFromCart = (id: string) => removeItem(id);
 
   return (
     <Card>
-      <CardHeader
-        title="Cart"
-        subheader={state.id ? `Cart ID: ${state.id}` : undefined}
-      />
       <CardContent>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell sx={{fontWeight: 'bold'}}>Product</TableCell>
-              <TableCell sx={{fontWeight: 'bold'}}>Price</TableCell>
               <TableCell sx={{fontWeight: 'bold'}}>Qty</TableCell>
-              <TableCell></TableCell>
+              <TableCell sx={{fontWeight: 'bold'}}>Price</TableCell>
+              {editable && <TableCell></TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -61,7 +67,28 @@ export function CartCard({
                     : i.basePrice
                   ).toFixed(2)}
                 </TableCell>
-                <TableCell></TableCell>
+                {editable && (
+                  <TableCell align="right">
+                    <IconButton
+                      sx={{':hover': {color: 'red'}}}
+                      onClick={() => handleRemoveAllFromCart(i.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                    <IconButton
+                      sx={{':hover': {color: 'orange'}}}
+                      onClick={() => handleRemoveFromCart(i.id)}
+                    >
+                      <RemoveIcon />
+                    </IconButton>
+                    <IconButton
+                      sx={{':hover': {color: 'green'}}}
+                      onClick={() => addItem({...i, quantity: 1})}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
@@ -73,19 +100,24 @@ export function CartCard({
                 <TableCell>
                   - ${discounts.reduce((pv, cv) => (pv += cv), 0).toFixed(2)}
                 </TableCell>
-                <TableCell></TableCell>
+                {editable && <TableCell></TableCell>}
               </TableRow>
             )}
             <TableRow>
               <TableCell>Total</TableCell>
               <TableCell>
-                {state.items.reduce((pv, cv) => (pv += cv.quantity), 0)}
+                {(cart ?? state).items.reduce((pv, cv) => (pv += cv.quantity), 0)}
               </TableCell>
-              <TableCell colSpan={2} sx={{fontWeight: 'bold'}}>
+              <TableCell colSpan={editable ? 2 : 1} sx={{fontWeight: 'bold'}}>
                 $
-                {state.items
-                  .reduce((pv, cv) => (pv += cv.basePrice + cv.extraPrice), 0)
-                  .toFixed(2)}
+                {(cart
+                  ? cart.items.reduce(
+                      (pv, cv) =>
+                        (pv += cv.quantity * (cv.basePrice + cv.extraPrice)),
+                      0,
+                    )
+                  : getTotal()
+                ).toFixed(2)}
               </TableCell>
             </TableRow>
           </TableFooter>

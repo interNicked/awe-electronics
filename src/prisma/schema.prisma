@@ -58,7 +58,8 @@ model User {
   // Relations
   carts  Cart[]
   orders Order[]
-  Coupon Coupon[]
+  coupons Coupon[]
+  addresses Address[]
 
   @@index([role])
 }
@@ -148,19 +149,21 @@ model CartItem {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-//  ORDERS  (snapshot of the cart at purchase time)
+//  ORDERS
 // ──────────────────────────────────────────────────────────────────────────────
 model Order {
   id        String      @id @default(uuid())
-  userId    String
+  userId    String?
   total     Int
   status    OrderStatus @default(pending)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  billingAddressId String
 
   // Relations
-  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   items    OrderItem[]
+  user     User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billing  Address      @relation(fields: [billingAddressId], references: [id])
   invoice  Invoice?
   shipment Shipment?
 
@@ -172,8 +175,9 @@ model OrderItem {
   orderId         String
   productId       String
   productOptionId String?
-  titleSnapshot   String
-  priceSnapshot   Decimal @db.Decimal(10, 2)
+  title           String
+  extraPrice      Int
+  basePrice       Int
   quantity        Int
 
   order         Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -201,13 +205,47 @@ model Invoice {
 model Shipment {
   id             String         @id @default(uuid())
   orderId        String         @unique
-  carrier        String
-  trackingNumber String         @unique
+  addressId      String
   status         ShipmentStatus @default(preparing)
+  carrier        String?
+  trackingNumber String?        @unique
   shippedAt      DateTime?
   eta            DateTime?
 
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  address Address @relation(fields: [addressId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+enum AddressType {
+  DeliveryAddress
+  BillingAddress
+}
+
+enum AddressStatus {
+  CurrentAddress
+  PreviousAddress
+}
+
+model Address {
+  id            String      @id @default(uuid())
+  userId        String?
+  fullName      String
+  addressLine1  String
+  addressLine2  String?
+  city          String
+  state         String
+  postcode      String
+  country       String
+  type          AddressType
+  status        AddressStatus
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  user          User?       @relation(fields: [userId], references: [id])
+  Shipment      Shipment[]
+  Order         Order[]
+
+  @@index([country, postcode])
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

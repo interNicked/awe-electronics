@@ -36,10 +36,12 @@ export default function App({Component, pageProps}: AppProps) {
         <SessionProvider session={pageProps.session}>
           <ThemeProvider theme={theme}>
             <SnackbarProvider maxSnack={5}>
-              <ResponsiveAppBar />
-              <Container maxWidth="md" sx={{width: '100%'}} component={Paper}>
-                <Component {...pageProps} />
-              </Container>
+              <Paper sx={{minHeight: '100vh'}}>
+                <ResponsiveAppBar />
+                <Container variant='outlined' maxWidth="md" sx={{width: '100%', my: '1rem', py: '2rem'}} component={Paper}>
+                  <Component {...pageProps} />
+                </Container>
+              </Paper>
             </SnackbarProvider>
           </ThemeProvider>
         </SessionProvider>

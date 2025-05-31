@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import {Customer} from './Customer';
 import {ShoppingCart} from './ShoppingCart';
+import Prisma from  '@prisma/client';
 
 export enum OrderStatus {
   Pending,
@@ -22,5 +23,14 @@ export class Order {
   ) {}
   markPaid() {
     this.status = OrderStatus.Paid;
+  }
+
+  static serialize({order, items = []}: {order: Prisma.Order, items?: Prisma.OrderItem[]}) {
+    return {
+      ...order,
+      createdAt: order.createdAt.toString(),
+      updatedAt: order.createdAt.toString(),
+      items,
+    }
   }
 }
