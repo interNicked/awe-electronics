@@ -1,6 +1,7 @@
 import {Address} from '@/lib/schemas/AddressSchema';
 import OrderSchema from '@/lib/schemas/OrderSchema';
 import {
+  Alert,
   Button,
   Card,
   CardContent,
@@ -22,8 +23,10 @@ export function OrderConfirmCard() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const {state, getTotal, clearCart} = useCart();
   const router = useRouter();
-  const [orderInvalid, setOrderInvalid] = useState(false);
   const {items} = state;
+  const [orderInvalid, setOrderInvalid] = useState<
+    {itemTitle: string; reason: string}[] | false
+  >(false);
 
   useEffect(() => {
     const local = localStorage.getItem('addresses');
@@ -54,13 +57,18 @@ export function OrderConfirmCard() {
       });
       console.log({invalidItems});
       if (invalidItems.length !== 0) {
-        setOrderInvalid(true);
-        invalidItems.forEach(i =>
-          enqueueSnackbar(
-            'Invalid Order - Not Enough ' + i.title,
-            {variant: 'error'},
-          ),
+        setOrderInvalid(
+          invalidItems.map(i => {
+            const reason = 'Invalid Order - Not Enough ' + i.title;
+
+            enqueueSnackbar(reason, {
+              variant: 'error',
+            });
+
+            return {itemTitle: i.title, reason};
+          }),
         );
+
         return;
       }
       const res = await fetch('/api/orders', {
@@ -81,6 +89,15 @@ export function OrderConfirmCard() {
     <>
       <CartCard editable={false} />
       <Card>
+        {orderInvalid && (
+          <CardContent>
+            {orderInvalid.map((a, i) => (
+              <Alert key={`invalid-reason-${i}`} severity="error">
+                {a.reason}
+              </Alert>
+            ))}
+          </CardContent>
+        )}
         <CardContent>
           <Table>
             <TableBody>

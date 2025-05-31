@@ -20,6 +20,7 @@ import {CartState, useCart} from '../hooks/useCart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import useProducts from '../hooks/useProducts';
 
 export function CartCard({
   cart: _cart,
@@ -32,6 +33,7 @@ export function CartCard({
 }) {
   const {state, removeItem, addItem, getTotal} = useCart();
   const [discounts, setDiscounts] = useState([]);
+  const {products, productOptions} = useProducts();
 
   const cart = _cart ?? state;
 
@@ -52,45 +54,53 @@ export function CartCard({
             </TableRow>
           </TableHead>
           <TableBody>
-            {cart.items.map(i => (
-              <TableRow key={i.id}>
-                <TableCell>
-                  <MLink component={Link} href={`/products/${i.productId}`}>
-                    {i.title}
-                  </MLink>
-                </TableCell>
-                <TableCell>{i.quantity}</TableCell>
-                <TableCell>
-                  $
-                  {(i.productOptionId
-                    ? i.basePrice + i.extraPrice
-                    : i.basePrice
-                  ).toFixed(2)}
-                </TableCell>
-                {editable && (
-                  <TableCell align="right">
-                    <IconButton
-                      sx={{':hover': {color: 'red'}}}
-                      onClick={() => handleRemoveAllFromCart(i.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                    <IconButton
-                      sx={{':hover': {color: 'orange'}}}
-                      onClick={() => handleRemoveFromCart(i.id)}
-                    >
-                      <RemoveIcon />
-                    </IconButton>
-                    <IconButton
-                      sx={{':hover': {color: 'green'}}}
-                      onClick={() => addItem({...i, quantity: 1})}
-                    >
-                      <AddIcon />
-                    </IconButton>
+            {cart.items.map(i => {
+              const opt = productOptions.find(o => o.id === i.productOptionId)
+
+              return (
+                <TableRow key={i.id}>
+                  <TableCell>
+                    <MLink component={Link} href={`/products/${i.productId}`}>
+                      {i.title}
+                    </MLink>
                   </TableCell>
-                )}
-              </TableRow>
-            ))}
+                  <TableCell>{i.quantity}</TableCell>
+                  <TableCell>
+                    $
+                    {(i.productOptionId
+                      ? i.basePrice + i.extraPrice
+                      : i.basePrice
+                    ).toFixed(2)}
+                  </TableCell>
+                  {editable && (
+                    <TableCell align="right">
+                      <IconButton
+                        sx={{':hover': {color: 'red'}}}
+                        onClick={() => handleRemoveAllFromCart(i.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                      <IconButton
+                        sx={{':hover': {color: 'orange'}}}
+                        onClick={() => handleRemoveFromCart(i.id)}
+                        disabled={i.quantity <= 1}
+                      >
+                        <RemoveIcon />
+                      </IconButton>
+                      <IconButton
+                        sx={{':hover': {color: 'green'}}}
+                        disabled={
+                            !opt || opt.stock <= i.quantity
+                        }
+                        onClick={() => addItem({...i, quantity: 1})}
+                      >
+                        <AddIcon />
+                      </IconButton>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
           </TableBody>
           <TableFooter>
             {showDiscounts && (
@@ -106,7 +116,10 @@ export function CartCard({
             <TableRow>
               <TableCell>Total</TableCell>
               <TableCell>
-                {(cart ?? state).items.reduce((pv, cv) => (pv += cv.quantity), 0)}
+                {(cart ?? state).items.reduce(
+                  (pv, cv) => (pv += cv.quantity),
+                  0,
+                )}
               </TableCell>
               <TableCell colSpan={editable ? 2 : 1} sx={{fontWeight: 'bold'}}>
                 $
