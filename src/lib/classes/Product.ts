@@ -1,16 +1,12 @@
-import {Category} from './Category';
-import {PrismaResource} from './PrismaResource';
-
 import Prisma from '@prisma/client';
 
-export class Product extends PrismaResource {
+export class Product {
   readonly id: string;
   title: string;
   description: string;
   images: string[];
   basePrice: number;
   status: Prisma.$Enums.ProductStatus = 'out_of_stock';
-  categories: Category[] = [];
   barcode?: string;
   createdAt: string | Date;
   updatedAt: string | Date;
@@ -22,7 +18,6 @@ export class Product extends PrismaResource {
     price: number,
     images = [],
   ) {
-    super();
     this.id = id;
     this.title = title;
     this.description = desc;
