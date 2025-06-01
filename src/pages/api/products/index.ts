@@ -4,7 +4,6 @@ import prisma from '../../../prisma';
 import Prisma from '@prisma/client';
 import z from 'zod';
 import {notFound} from 'next/navigation';
-import {createHash} from 'crypto';
 
 const PostSchema = z.object({
   title: z.string().min(4),
@@ -22,7 +21,7 @@ export default async function handler(
     Prisma.Product | Prisma.Product[] | z.ZodError | `Error: ${string}`
   >,
 ) {
-  console.log(req.body)
+  console.log(req.body);
   switch (req.method) {
     case 'POST':
       const {error: postError, data: postData} = PostSchema.safeParse({
@@ -53,8 +52,8 @@ export default async function handler(
       const {id} = getData;
       if (id) {
         const product = await prisma.product.findUnique({
-          where: {id}
-        })
+          where: {id},
+        });
 
         if (!product) {
           notFound();
@@ -71,7 +70,7 @@ export default async function handler(
 
       break;
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

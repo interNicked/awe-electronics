@@ -1,4 +1,3 @@
-
 import Prisma from '@prisma/client';
 import {useState, useEffect} from 'react';
 
@@ -38,7 +37,9 @@ export function useProducts() {
   }, []);
 
   return {
-    productCategories, productOptions, products
+    productCategories,
+    productOptions,
+    products,
   };
 }
 

@@ -1,16 +1,18 @@
-import { Admin } from '@/lib/classes/Admin';
-import { Customer } from '@/lib/classes/Customer';
+import {Admin} from '@/lib/classes/Admin';
+import {Customer} from '@/lib/classes/Customer';
 import CartCard from '@/lib/components/cards/CartCard';
 import UserCard from '@/lib/components/cards/UserCard';
-import { CartState } from '@/lib/components/hooks/useCart';
+import {CartState} from '@/lib/components/hooks/useCart';
 import prisma from '@/prisma/index';
 import Prisma from '@prisma/client';
-import { GetServerSidePropsContext } from 'next';
-import { notFound } from 'next/navigation';
+import {GetServerSidePropsContext} from 'next';
+import {notFound} from 'next/navigation';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {id} = context.query;
-  let props: {user?: Partial<Prisma.User>, cart?: CartState | null} = { cart: null}
+  const props: {user?: Partial<Prisma.User>; cart?: CartState | null} = {
+    cart: null,
+  };
 
   if (!id || Array.isArray(id)) notFound();
 
@@ -34,16 +36,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   if (cart) {
     const items = await prisma.cartItem.findMany({
-        where: {cartId: cart.id},
-    })
-    cartItems.push(
-      ...(items ?? []),
-    );
+      where: {cartId: cart.id},
+    });
+    cartItems.push(...(items ?? []));
     props['cart'] = {id: cart.id, items: cartItems};
   }
 
   return {
-    props
+    props,
   };
 }
 

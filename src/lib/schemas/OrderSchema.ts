@@ -1,6 +1,5 @@
-import z from "zod";
-import { AddressSchema } from "../schemas/AddressSchema";
-import { OrderStatus } from "@prisma/client";
+import z from 'zod';
+import {AddressSchema} from '../schemas/AddressSchema';
 
 export const OrderSchema = z.object({
   total: z.number().min(0.01),

@@ -4,8 +4,7 @@ import prisma from '../../../../../prisma';
 import Prisma from '@prisma/client';
 import z from 'zod';
 import {notFound} from 'next/navigation';
-import {createHash} from 'crypto';
-import { ProductOptionsPostSchema } from '@/lib/schemas/ProductOptionPostSchema';
+import {ProductOptionsPostSchema} from '@/lib/schemas/ProductOptionPostSchema';
 
 const GetSchema = z.object({
   id: z.string().uuid().optional(),
@@ -14,15 +13,19 @@ const GetSchema = z.object({
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
-    Prisma.ProductOption | Prisma.ProductOption[] | z.ZodError | `Error: ${string}`
+    | Prisma.ProductOption
+    | Prisma.ProductOption[]
+    | z.ZodError
+    | `Error: ${string}`
   >,
 ) {
   switch (req.method) {
     case 'POST':
-      const {error: postError, data: postData} = ProductOptionsPostSchema.safeParse({
-        ...req.body,
-        ...req.query,
-      });
+      const {error: postError, data: postData} =
+        ProductOptionsPostSchema.safeParse({
+          ...req.body,
+          ...req.query,
+        });
       if (postError) {
         res.status(400).send(postError);
         return;
@@ -30,16 +33,16 @@ export default async function handler(
 
       const option = await prisma.productOption.create({
         data: {
-            attribute: postData.attribute,
-            sku: postData.sku,
-            stock: postData.stock,
-            value: postData.value,
-            extra: postData.extra,
-            productId: postData.productId
+          attribute: postData.attribute,
+          sku: postData.sku,
+          stock: postData.stock,
+          value: postData.value,
+          extra: postData.extra,
+          productId: postData.productId,
         },
       });
 
-      res.send(option)
+      res.send(option);
       break;
 
     case 'GET':
@@ -54,8 +57,8 @@ export default async function handler(
       const {id} = getData;
       if (id) {
         const option = await prisma.productOption.findUnique({
-          where: {id}
-        })
+          where: {id},
+        });
 
         if (!option) {
           notFound();
@@ -70,7 +73,7 @@ export default async function handler(
 
       break;
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

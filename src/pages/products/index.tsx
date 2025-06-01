@@ -1,34 +1,12 @@
-import {useUsers} from '@/lib/components/hooks/useUsers';
-import {
-  Avatar,
-  Card,
-  CardContent,
-  CardHeader,
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography,
-  Link as MLink,
-  ButtonGroup,
-  Button,
-  Tooltip,
-} from '@mui/material';
-import {DataGrid} from '@mui/x-data-grid/DataGrid';
-import useProducts from '@/lib/components/hooks/useProducts';
+import {ProductGrid} from '@/lib/components/ProductGrid';
+import {Button, ButtonGroup, Card, CardHeader, Tooltip} from '@mui/material';
+import {useSession} from 'next-auth/react';
 import Link from 'next/link';
 
-import CheckIcon from '@mui/icons-material/Check';
-import CancelIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import {ProductGrid} from '@/lib/components/ProductGrid';
-import {useSession} from 'next-auth/react';
 
 export default function ProductsIndexPage() {
-  const {products, productOptions, productCategories} = useProducts();
   const {data: session} = useSession();
 
   console.log({session});
@@ -44,7 +22,7 @@ export default function ProductsIndexPage() {
                   <RefreshIcon />
                 </Button>
               </Tooltip>
-              {session?.user.role === 'admin' && (
+              {session?.user?.role === 'admin' && (
                 <Tooltip title="Add Product" arrow>
                   <Button LinkComponent={Link} href="/products/add">
                     <AddIcon />

@@ -1,11 +1,15 @@
-import { Table, TableBody, TableRow, TableCell } from "@mui/material";
-import { Order } from "../classes/Order";
+import {Table, TableBody, TableRow, TableCell} from '@mui/material';
+import {Order} from '../classes/Order';
 
-export function AddressTable({addresses}: {addresses: ReturnType<typeof Order.serialize>['addresses']}) {
+export function AddressTable({
+  addresses,
+}: {
+  addresses: ReturnType<typeof Order.serialize>['addresses'];
+}) {
   return (
     <Table>
       <TableBody>
-        {addresses.map((a, i) => (
+        {addresses.map(a => (
           <TableRow key={a.type}>
             <TableCell sx={{fontWeight: 'bold'}}>
               {a.type === 'BillingAddress' ? 'Billing' : 'Delivery'} Address

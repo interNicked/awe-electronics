@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {
-  Box,
   Grid,
   TextField,
   Typography,
@@ -26,13 +25,7 @@ const emptyAddress = {
   country: '',
 };
 
-export function AddressForm({
-  addresses = [],
-  editable = true,
-}: {
-  addresses?: Address[];
-  editable?: boolean;
-}) {
+export function AddressForm() {
   const {data: session} = useSession();
   const {enqueueSnackbar} = useSnackbar();
   const [billing, setBilling] = useState<Address>({
@@ -56,6 +49,7 @@ export function AddressForm({
       const update = type === 'BillingAddress' ? {...billing} : {...delivery};
       update[field] = event.target.value;
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       type === 'BillingAddress' ? setBilling(update) : setDelivery(update);
     };
 
@@ -84,7 +78,7 @@ export function AddressForm({
         ? {...billing, type: 'DeliveryAddress'}
         : delivery;
       const res = await fetch(
-        session?.user.id
+        session?.user?.id
           ? `/api/users/${session.user.id}/addresses`
           : '/api/addresses',
         {

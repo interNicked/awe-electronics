@@ -17,7 +17,7 @@ export function ManagePage() {
     <Box sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
       <Card variant="outlined">
         <CardHeader
-          title={`Users`}
+          title={'Users'}
           action={
             <IconButton href="/manage/users" LinkComponent={Link}>
               <ArrowRightIcon />
@@ -27,7 +27,7 @@ export function ManagePage() {
       </Card>
       <Card variant="outlined">
         <CardHeader
-          title={`Orders`}
+          title={'Orders'}
           action={
             <IconButton href="/manage/orders" LinkComponent={Link}>
               <ArrowRightIcon />
@@ -37,7 +37,7 @@ export function ManagePage() {
       </Card>
       <Card variant="outlined">
         <CardHeader
-          title={`Shipments`}
+          title={'Shipments'}
           action={
             <IconButton href="/manage/shipments" LinkComponent={Link}>
               <ArrowRightIcon />

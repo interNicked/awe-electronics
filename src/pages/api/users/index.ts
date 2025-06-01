@@ -18,7 +18,9 @@ const GetSchema = z.object({
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Prisma.User | Prisma.User[] | z.ZodError | `Error: ${string}`>,
+  res: NextApiResponse<
+    Prisma.User | Prisma.User[] | z.ZodError | `Error: ${string}`
+  >,
 ) {
   console.log({
     method: req.method,
@@ -47,7 +49,7 @@ export default async function handler(
         },
       });
 
-      res.send(user)
+      res.send(user);
       break;
 
     case 'GET':
@@ -71,14 +73,14 @@ export default async function handler(
 
         res.send(user);
       } else {
-        const users = await prisma.user.findMany()
+        const users = await prisma.user.findMany();
 
-        res.send(users)
+        res.send(users);
       }
 
       break;
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

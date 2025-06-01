@@ -1,11 +1,11 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import Prisma from '@prisma/client';
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth';
-import { notFound } from 'next/navigation';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import {getServerSession} from 'next-auth';
+import {notFound} from 'next/navigation';
 import z from 'zod';
 import prisma from '../../../../prisma';
-import { authOptions } from '../../auth/[...nextauth]';
+import {authOptions} from '../../auth/[...nextauth]';
 
 const GetSchema = z.object({
   id: z.string().uuid().optional(),
@@ -41,7 +41,7 @@ export default async function handler(
 
         res.send(order);
       } else {
-        if(session.user.role !== 'admin') notFound();
+        if (session.user.role !== 'admin') notFound();
         const orders = await prisma.order.findMany();
 
         res.send(orders);
@@ -49,7 +49,7 @@ export default async function handler(
 
       break;
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

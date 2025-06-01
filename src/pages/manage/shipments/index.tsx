@@ -1,4 +1,3 @@
-import {Order} from '@/lib/classes/Order';
 import prisma from '@/prisma';
 import {
   Card,

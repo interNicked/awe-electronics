@@ -7,7 +7,6 @@ import prisma from '@/prisma/index';
 import {
   Box,
   Button,
-  ButtonGroup,
   Card,
   CardContent,
   CardHeader,
@@ -21,15 +20,13 @@ import Prisma, {ProductOption} from '@prisma/client';
 import {GetServerSidePropsContext} from 'next';
 import Image from 'next/image';
 import {notFound} from 'next/navigation';
+import {useRouter} from 'next/router';
 import {useSnackbar} from 'notistack';
 import {useState} from 'react';
 import z from 'zod';
 
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import SaveIcon from '@mui/icons-material/Save';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import {useRouter} from 'next/router';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {id} = context.query;

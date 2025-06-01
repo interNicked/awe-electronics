@@ -1,12 +1,10 @@
-import Prisma from "@prisma/client";
-import { Customer } from "./Customer";
-import { PrismaResource } from "./PrismaResource";
+import Prisma from '@prisma/client';
 
 export abstract class User {
   id: string;
   email: string;
   passwordHash: string;
-  abstract role: Prisma.$Enums.UserRole
+  abstract role: Prisma.$Enums.UserRole;
 
   protected constructor({
     id,

@@ -1,11 +1,11 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import prisma from '@/prisma';
 import Prisma from '@prisma/client';
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth';
-import { notFound } from 'next/navigation';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import {getServerSession} from 'next-auth';
+import {notFound} from 'next/navigation';
 import z from 'zod';
-import { authOptions } from '../../auth/[...nextauth]';
+import {authOptions} from '../../auth/[...nextauth]';
 
 const CartItemSchema = z.object({
   title: z.string(),
@@ -15,8 +15,6 @@ const CartItemSchema = z.object({
   basePrice: z.coerce.number(),
   extraPrice: z.coerce.number(),
 });
-
-const x: Prisma.CartItem | null = null;
 
 const PostSchema = z.object({
   id: z.string().uuid().nullable(),
@@ -109,7 +107,7 @@ export default async function handler(
 
       break;
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

@@ -21,7 +21,6 @@ import {
 import {DateTimePicker} from '@mui/x-date-pickers';
 import {ShipmentStatus} from '@prisma/client';
 import dayjs from 'dayjs';
-import {useRouter} from 'next/router';
 import {useSnackbar} from 'notistack';
 import {useState} from 'react';
 
@@ -40,7 +39,6 @@ export function ShipmentCard({
     replaceNullsWithEmptyStrings(shipment),
   );
   const [errors, setErrors] = useState<string[]>([]);
-  const router = useRouter();
 
   const shipmentState = editable ? shipmentEditState : _shipmentState;
 
@@ -232,6 +230,7 @@ function replaceNullsWithEmptyStrings<T>(input: T): T {
   }
 
   if (typeof input === 'object' && input !== null) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = {};
     for (const [key, value] of Object.entries(input)) {
       result[key] = replaceNullsWithEmptyStrings(value);

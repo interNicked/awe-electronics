@@ -4,7 +4,6 @@ import prisma from '../../../../prisma';
 import Prisma from '@prisma/client';
 import z from 'zod';
 import {notFound} from 'next/navigation';
-import {createHash} from 'crypto';
 
 const PutSchema = z.object({
   id: z.string().uuid(),
@@ -91,7 +90,7 @@ export default async function handler(
       return;
 
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

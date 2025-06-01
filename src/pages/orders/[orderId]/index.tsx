@@ -1,17 +1,10 @@
 import {Order} from '@/lib/classes/Order';
-import {AddressTable} from '@/lib/components/AddressTable';
-import CartCard from '@/lib/components/cards/CartCard';
 import prisma from '@/prisma/index';
-import {Card, CardHeader, Chip, IconButton, Typography} from '@mui/material';
 import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
 import {GetServerSidePropsContext} from 'next';
 import {notFound} from 'next/navigation';
-import {getRelativeTimeString} from '..';
 
 import {Shipment} from '@/lib/classes/Shipment';
-import {ShipmentCard} from '@/lib/components/cards/ShipmentCard';
-import ContentCopy from '@mui/icons-material/ContentCopy';
-import {useSnackbar} from 'notistack';
 import OrderCard from '@/lib/components/cards/OrderCard';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -79,7 +72,7 @@ export function OrderPage({
   order: ReturnType<typeof Order.serialize>;
   shipment: ReturnType<typeof Shipment.serialize>;
 }) {
-  return <OrderCard order={order} shipment={shipment} />
+  return <OrderCard order={order} shipment={shipment} />;
 }
 
 export default OrderPage;

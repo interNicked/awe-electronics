@@ -1,8 +1,8 @@
-import { $Enums } from '@prisma/client';
-import { User } from './User';
+import {$Enums} from '@prisma/client';
+import {User} from './User';
 
 export class Admin extends User {
-  role: $Enums.UserRole = 'admin'
+  role: $Enums.UserRole = 'admin';
 
   constructor({
     id,

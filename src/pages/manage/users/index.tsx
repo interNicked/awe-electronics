@@ -5,11 +5,6 @@ import {
   CardContent,
   CardHeader,
   Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   Typography,
   Link as MLink,
 } from '@mui/material';

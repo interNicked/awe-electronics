@@ -103,7 +103,13 @@ function ResponsiveAppBar() {
                       onClick={handleCloseNavMenu}
                       sx={{width: '100%'}}
                     >
-                      <Badge badgeContent={state.items.reduce((pv, cv) => pv += cv.quantity, 0)} color="primary">
+                      <Badge
+                        badgeContent={state.items.reduce(
+                          (pv, cv) => (pv += cv.quantity),
+                          0,
+                        )}
+                        color="primary"
+                      >
                         <Typography sx={{textAlign: 'center', pr: '0.5rem'}}>
                           {page}
                         </Typography>
@@ -150,7 +156,10 @@ function ResponsiveAppBar() {
                   sx={{py: 2, color: 'white', display: 'block'}}
                 >
                   <Badge
-                    badgeContent={state.items.reduce((pv, cv) => pv += cv.quantity, 0)}
+                    badgeContent={state.items.reduce(
+                      (pv, cv) => (pv += cv.quantity),
+                      0,
+                    )}
                     color="primary"
                     sx={{px: '0.5rem'}}
                   >

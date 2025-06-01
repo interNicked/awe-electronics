@@ -55,7 +55,7 @@ export default function ProductPage({
   product: Prisma.Product;
   options: Prisma.ProductOption[];
 }) {
-  const [stateOptions, setStateOptions] = useState<ProductOption[]>(options);
+  const [stateOptions] = useState<ProductOption[]>(options);
   const [selectedOption, setSelectedOption] = useState<
     ProductOption | undefined
   >(options.at(0));
@@ -81,9 +81,8 @@ export default function ProductPage({
               </Button>
               <Button
                 onClick={() => {
-                  const cartId = state.id ?? v4()
-                  if(!state.id)
-                    setCartId(cartId)
+                  const cartId = state.id ?? v4();
+                  if (!state.id) setCartId(cartId);
                   addItem({
                     cartId,
                     id: v4(),

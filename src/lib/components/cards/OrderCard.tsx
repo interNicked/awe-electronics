@@ -16,7 +16,6 @@ import {
   Typography,
 } from '@mui/material';
 import {OrderStatus} from '@prisma/client';
-import {useSession} from 'next-auth/react';
 import Link from 'next/link';
 import {useSnackbar} from 'notistack';
 import {useState} from 'react';
@@ -48,7 +47,6 @@ export default function OrderCard({
   const [orderEditState, setOrderEditState] = useState(
     replaceNullsWithEmptyStrings(order),
   );
-  const {data: session} = useSession();
   const {enqueueSnackbar} = useSnackbar();
 
   const orderState = editable ? orderEditState : _orderState;
@@ -195,6 +193,7 @@ function replaceNullsWithEmptyStrings<T>(input: T): T {
   }
 
   if (typeof input === 'object' && input !== null) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = {};
     for (const [key, value] of Object.entries(input)) {
       result[key] = replaceNullsWithEmptyStrings(value);

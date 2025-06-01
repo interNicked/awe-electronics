@@ -2,13 +2,7 @@ import ResponsiveAppBar from '@/lib/components/AppBar';
 import {CartProvider} from '@/lib/components/hooks/useCart';
 import type {AppProps} from 'next/app';
 import '../styles/globals.css';
-import {
-  Container,
-  createTheme,
-  Paper,
-  ThemeProvider,
-  useColorScheme,
-} from '@mui/material';
+import {Container, createTheme, Paper, ThemeProvider} from '@mui/material';
 import {SessionProvider} from 'next-auth/react';
 import Head from 'next/head';
 import {SnackbarProvider} from 'notistack';

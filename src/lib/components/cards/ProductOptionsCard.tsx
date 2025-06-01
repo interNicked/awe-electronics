@@ -1,17 +1,7 @@
 import {
-  Button,
-  ButtonGroup,
   Card,
   CardContent,
   CardHeader,
-  Checkbox,
-  Container,
-  FormControl,
-  FormControlLabel,
-  IconButton,
-  Paper,
-  Radio,
-  RadioGroup,
   Table,
   TableBody,
   TableCell,
@@ -21,8 +11,6 @@ import {
   Typography,
 } from '@mui/material';
 import {ProductOption} from '@prisma/client';
-
-import {useSession} from 'next-auth/react';
 import {JSX} from 'react';
 
 export function ProductOptionsCard({
@@ -32,7 +20,6 @@ export function ProductOptionsCard({
   options: ProductOption[];
   actions?: ({a}: {a: ProductOption}) => JSX.Element;
 }) {
-  const {data: session} = useSession();
   const attributes = Object.groupBy(options, o => o.attribute);
   const keys = Object.keys(attributes);
 

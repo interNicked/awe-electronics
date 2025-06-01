@@ -1,7 +1,6 @@
 'use client';
 import {Product} from '@/lib/classes/Product';
 import ProductOptionsCard from '@/lib/components/cards/ProductOptionsCard';
-import useProducts from '@/lib/components/hooks/useProducts';
 import {ProductOptionsPostSchema} from '@/lib/schemas/ProductOptionPostSchema';
 import {ProductPostSchema} from '@/lib/schemas/ProductPostSchema';
 import {
@@ -31,7 +30,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 
 export function AddProductPage() {
-  const {products, productOptions, productCategories} = useProducts();
   const [id] = useState<Product['id']>(uuid());
   const [product, setProduct] = useState<Product>(new Product(id, '', '', 0));
   const [options, setOptions] = useState<ProductOption[]>([]);

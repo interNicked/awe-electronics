@@ -91,11 +91,11 @@ export default async function handler(
         where: {id: deleteData.id},
       });
 
-      res.send(opt)
+      res.send(opt);
       break;
 
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

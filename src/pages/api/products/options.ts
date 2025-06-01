@@ -4,13 +4,6 @@ import prisma from '../../../prisma';
 import Prisma from '@prisma/client';
 import z from 'zod';
 import {notFound} from 'next/navigation';
-import {createHash} from 'crypto';
-
-const PostSchema = z.object({
-  title: z.string().min(4),
-  description: z.string(),
-  basePrice: z.number(),
-});
 
 const GetSchema = z.object({
   id: z.string().uuid().optional(),
@@ -54,7 +47,7 @@ export default async function handler(
 
       break;
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

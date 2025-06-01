@@ -88,12 +88,34 @@ const ColorlibStepIconRoot = styled('div')<{
 const steps = [
   {label: 'Cart', card: CartCard},
   {label: 'Address', card: AddressForm},
-  {label: 'Payment', card: () => <>
-  <Alert severity='warning' sx={{mt: '1rem'}}>Payments Not Yet Implemented</Alert>
-  <Skeleton height='3rem' width='100%' variant='rounded' sx={{mt: '1rem'}}/>
-  <Skeleton height='3rem' width='100%' variant='rounded' sx={{mt: '1rem'}}/>
-  <Skeleton height='3rem' width='100%' variant='rounded' sx={{mt: '1rem', mb: '1rem'}}/>
-  </>},
+  {
+    label: 'Payment',
+    card: () => (
+      <>
+        <Alert severity="warning" sx={{mt: '1rem'}}>
+          Payments Not Yet Implemented
+        </Alert>
+        <Skeleton
+          height="3rem"
+          width="100%"
+          variant="rounded"
+          sx={{mt: '1rem'}}
+        />
+        <Skeleton
+          height="3rem"
+          width="100%"
+          variant="rounded"
+          sx={{mt: '1rem'}}
+        />
+        <Skeleton
+          height="3rem"
+          width="100%"
+          variant="rounded"
+          sx={{mt: '1rem', mb: '1rem'}}
+        />
+      </>
+    ),
+  },
   {label: 'Confirm', card: OrderConfirmCard},
 ];
 

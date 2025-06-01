@@ -1,29 +1,19 @@
-import {useUsers} from '@/lib/components/hooks/useUsers';
+import {Order} from '@/lib/classes/Order';
+import {getRelativeTimeString} from '@/pages/orders';
+import prisma from '@/prisma';
 import {
-  Avatar,
   Card,
   CardContent,
   CardHeader,
   Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography,
   Link as MLink,
+  Typography,
 } from '@mui/material';
 import {DataGrid} from '@mui/x-data-grid/DataGrid';
-import Link from 'next/link';
-
-import CheckIcon from '@mui/icons-material/Check';
-import CancelIcon from '@mui/icons-material/Close';
 import {GetServerSidePropsContext} from 'next';
 import {getServerSession} from 'next-auth';
+import Link from 'next/link';
 import {authOptions} from '../../api/auth/[...nextauth]';
-import {Order} from '@/lib/classes/Order';
-import prisma from '@/prisma';
-import { getRelativeTimeString } from '@/pages/orders';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -42,7 +32,7 @@ export default function ManageOrdersPage({
   orders: ReturnType<typeof Order.serialize>[];
 }) {
   const StatusChip = (status: (typeof orders)[number]['status']) => (
-    <Chip label={<Typography variant='overline'>{status}</Typography>} />
+    <Chip label={<Typography variant="overline">{status}</Typography>} />
   );
 
   return (

@@ -1,6 +1,6 @@
 import prisma from '@/prisma';
 import {createHash} from 'crypto';
-import NextAuth, {Session, User, SessionStrategy, AuthOptions} from 'next-auth';
+import NextAuth, {Session, User, AuthOptions} from 'next-auth';
 import {JWT} from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 

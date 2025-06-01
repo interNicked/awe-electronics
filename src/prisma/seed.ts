@@ -92,7 +92,7 @@ const productData = [
           },
         ],
       },
-    }
+    },
   },
 ];
 
@@ -125,5 +125,6 @@ main()
   .catch(async e => {
     console.error(e);
     await prisma.$disconnect();
+    // eslint-disable-next-line n/no-process-exit
     process.exit(1);
   });

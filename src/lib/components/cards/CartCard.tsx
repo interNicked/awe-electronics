@@ -23,7 +23,7 @@ export function CartCard({
   cart: _cart,
   showDiscounts = true,
   editable = true,
-  cardProps = { variant: 'outlined'},
+  cardProps = {variant: 'outlined'},
 }: {
   cart?: CartState | null;
   showDiscounts?: boolean;
@@ -31,8 +31,8 @@ export function CartCard({
   cardProps?: CardProps;
 }) {
   const {state, removeItem, addItem, getTotal} = useCart();
-  const [discounts, setDiscounts] = useState([]);
-  const {products, productOptions} = useProducts();
+  const [discounts] = useState([]);
+  const {productOptions} = useProducts();
 
   const cart = _cart ?? state;
 

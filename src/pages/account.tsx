@@ -6,10 +6,9 @@ import {CartState} from '@/lib/components/hooks/useCart';
 import prisma from '@/prisma';
 import Prisma from '@prisma/client';
 import {GetServerSidePropsContext} from 'next';
-import {getServerSession, Session} from 'next-auth';
+import {getServerSession} from 'next-auth';
 import {authOptions} from './api/auth/[...nextauth]';
 import {v4} from 'uuid';
-import {useSession} from 'next-auth/react';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -32,7 +31,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const items = await prisma.cartItem.findMany({
       where: {cartId: cart.id},
     });
-    cartItems.push(...(items ?? []));
+    items.forEach(i => cartItems.push(i));
   }
 
   return {

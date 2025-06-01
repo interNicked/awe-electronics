@@ -3,7 +3,6 @@ import type {NextApiRequest, NextApiResponse} from 'next';
 import Prisma from '@prisma/client';
 import z from 'zod';
 import {notFound} from 'next/navigation';
-import {createHash} from 'crypto';
 import prisma from '@/prisma';
 import {getServerSession} from 'next-auth';
 import {authOptions} from '../auth/[...nextauth]';
@@ -16,8 +15,6 @@ const CartItemSchema = z.object({
   basePrice: z.coerce.number(),
   extraPrice: z.coerce.number(),
 });
-
-const x: Prisma.CartItem | null = null;
 
 const PostSchema = z.object({
   id: z.string().uuid().nullable(),
@@ -110,7 +107,7 @@ export default async function handler(
 
       break;
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

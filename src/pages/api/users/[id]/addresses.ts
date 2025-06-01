@@ -7,7 +7,7 @@ import {notFound} from 'next/navigation';
 import z from 'zod';
 import prisma from '../../../../prisma';
 import {authOptions} from '../../auth/[...nextauth]';
-import { v4 } from 'uuid';
+import {v4} from 'uuid';
 
 const PostSchema = z.object({
   userId: z.string().uuid(),
@@ -91,7 +91,7 @@ export default async function handler(
 
       break;
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

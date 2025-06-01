@@ -59,7 +59,7 @@ export function OrderPage({
   order: ReturnType<typeof Order.serialize>;
   shipment: ReturnType<typeof Shipment.serialize>;
 }) {
-  return <OrderCard order={order} shipment={shipment} editable/>;
+  return <OrderCard order={order} shipment={shipment} editable />;
 }
 
 export default OrderPage;

@@ -7,9 +7,7 @@ import {notFound} from 'next/navigation';
 import {getServerSession} from 'next-auth';
 import {authOptions} from '../auth/[...nextauth]';
 import OrderSchema from '@/lib/schemas/OrderSchema';
-import { v4 } from 'uuid';
-
-const PostSchema = OrderSchema;
+import {v4} from 'uuid';
 
 const GetSchema = z.object({
   id: z.string().uuid().optional(),
@@ -53,7 +51,7 @@ export default async function handler(
         return;
       }
 
-      const orderId = v4()
+      const orderId = v4();
       const order = await prisma.order.create({
         data: {
           id: orderId,
@@ -65,9 +63,9 @@ export default async function handler(
           Shipment: {
             create: {
               addressId: deliveryAddress.id,
-              orderId
-            }
-          }
+              orderId,
+            },
+          },
         },
       });
 
@@ -101,7 +99,7 @@ export default async function handler(
 
       break;
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

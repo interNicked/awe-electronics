@@ -8,7 +8,7 @@ import prisma from '../../../../prisma';
 import {authOptions} from '../../auth/[...nextauth]';
 import OrderSchema from '@/lib/schemas/OrderSchema';
 
- const PostSchema = OrderSchema.extend({
+const PostSchema = OrderSchema.extend({
   id: z.string().uuid(),
   userId: z.string().uuid().optional(),
   status: z.nativeEnum(OrderStatus),
@@ -44,11 +44,11 @@ export default async function handler(
       const order = await prisma.order.update({
         where: {id: data.id},
         data: {
-          status: data.status
-        }
+          status: data.status,
+        },
       });
 
-      res.json(order)
+      res.json(order);
       return;
 
     case 'GET':
@@ -78,7 +78,7 @@ export default async function handler(
 
       break;
     default:
-      res.status(405).send(`Error: method not allowed`);
+      res.status(405).send('Error: method not allowed');
       break;
   }
 }

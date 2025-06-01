@@ -1,12 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {CartItem} from '@prisma/client';
 import {
   createContext,
-  useContext,
-  useReducer,
   ReactNode,
+  useContext,
   useEffect,
+  useReducer,
 } from 'react';
-import {CartItem} from '@prisma/client';
-import {v4} from 'uuid';
 
 export type CartState = {id: string | null; items: CartItem[]};
 
@@ -130,7 +130,7 @@ export const CartProvider = ({children}: {children: ReactNode}) => {
         saveCart,
         setCart,
         setCartId,
-        getTotal
+        getTotal,
       }}
     >
       {children}

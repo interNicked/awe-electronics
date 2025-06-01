@@ -1,6 +1,6 @@
 import {Order} from '@/lib/classes/Order';
 import OrderSchema from '@/lib/schemas/OrderSchema';
-import {Alert, Box, Button, Card, CardContent} from '@mui/material';
+import {Alert, Box, Button} from '@mui/material';
 import {useRouter} from 'next/router';
 import {useSnackbar} from 'notistack';
 import {useEffect, useState} from 'react';
@@ -10,7 +10,7 @@ import useProducts from '../hooks/useProducts';
 import CartCard from './CartCard';
 
 export function OrderConfirmCard() {
-  const {products, productOptions} = useProducts();
+  const {productOptions} = useProducts();
   const {enqueueSnackbar} = useSnackbar();
   const [addresses, setAddresses] = useState<
     ReturnType<typeof Order.serialize>['addresses']
@@ -83,9 +83,7 @@ export function OrderConfirmCard() {
 
   return (
     <>
-      <Box
-        sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}
-      >
+      <Box sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
         <CartCard editable={false} />
         {orderInvalid && (
           <>
