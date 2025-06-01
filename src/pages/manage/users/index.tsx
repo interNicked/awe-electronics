@@ -18,13 +18,22 @@ import Link from 'next/link';
 
 import CheckIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Close';
+import {GetServerSidePropsContext} from 'next';
+import {getServerSession} from 'next-auth';
+import {authOptions} from '../../api/auth/[...nextauth]';
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const session = await getServerSession(context.req, context.res, authOptions);
+  if (!session || session.user.role !== 'admin') return {notFound: true};
+  return {props: {}};
+}
 
 export default function UsersIndexPage() {
   const {users} = useUsers();
 
   const UserTypeChip = (user: (typeof users)[number]) => (
     <Chip
-      color={user.role !== 'customer' ? 'secondary' : 'primary'}
+      color={user.role !== 'customer' ? 'secondary' : 'default'}
       label={<Typography variant="overline">{user.role}</Typography>}
     />
   );
@@ -36,6 +45,7 @@ export default function UsersIndexPage() {
         <CardContent>
           <DataGrid
             rows={users}
+            sx={{height: '75vh'}}
             columns={[
               {
                 field: 'email',
@@ -44,10 +54,12 @@ export default function UsersIndexPage() {
                   return (
                     <MLink
                       component={Link}
-                      href={`/users/${params.row.id}`}
+                      href={`/manage/users/${params.row.id}`}
                       sx={{mt: '20%'}}
                     >
-                      <Typography>{params.row.email}</Typography>
+                      <Typography sx={{mt: '1rem'}}>
+                        {params.row.email}
+                      </Typography>
                     </MLink>
                   );
                 },

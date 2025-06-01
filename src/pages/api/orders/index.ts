@@ -61,7 +61,13 @@ export default async function handler(
           userId: session?.user.id,
           items: {create: postData.items},
           billingAddressId: billingAddress.id,
-          deliveryAddressId: deliveryAddress.id
+          deliveryAddressId: deliveryAddress.id,
+          Shipment: {
+            create: {
+              addressId: deliveryAddress.id,
+              orderId
+            }
+          }
         },
       });
 

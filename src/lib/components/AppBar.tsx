@@ -192,6 +192,13 @@ function ResponsiveAppBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
+              {session?.user.role === 'admin' && (
+                <Link href="/manage">
+                  <MenuItem>
+                    <Typography sx={{textAlign: 'center'}}>Manage</Typography>
+                  </MenuItem>
+                </Link>
+              )}
               {session?.user && (
                 <Link href="/account">
                   <MenuItem>

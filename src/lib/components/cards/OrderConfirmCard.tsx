@@ -1,18 +1,10 @@
-import {Address} from '@/lib/schemas/AddressSchema';
+import {Order} from '@/lib/classes/Order';
 import OrderSchema from '@/lib/schemas/OrderSchema';
-import {
-  Alert,
-  Button,
-  Card,
-  CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from '@mui/material';
+import {Alert, Box, Button, Card, CardContent} from '@mui/material';
 import {useRouter} from 'next/router';
 import {useSnackbar} from 'notistack';
 import {useEffect, useState} from 'react';
+import AddressTable from '../AddressTable';
 import {useCart} from '../hooks/useCart';
 import useProducts from '../hooks/useProducts';
 import CartCard from './CartCard';
@@ -20,7 +12,9 @@ import CartCard from './CartCard';
 export function OrderConfirmCard() {
   const {products, productOptions} = useProducts();
   const {enqueueSnackbar} = useSnackbar();
-  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addresses, setAddresses] = useState<
+    ReturnType<typeof Order.serialize>['addresses']
+  >([]);
   const {state, getTotal, clearCart} = useCart();
   const router = useRouter();
   const {items} = state;
@@ -32,7 +26,9 @@ export function OrderConfirmCard() {
     const local = localStorage.getItem('addresses');
 
     if (local) {
-      const addresses = JSON.parse(local) as Address[];
+      const addresses = JSON.parse(local) as ReturnType<
+        typeof Order.serialize
+      >['addresses'];
       setAddresses(addresses);
     }
   }, []);
@@ -87,55 +83,34 @@ export function OrderConfirmCard() {
 
   return (
     <>
-      <CartCard editable={false} />
-      <Card>
+      <Box
+        sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}
+      >
+        <CartCard editable={false} />
         {orderInvalid && (
-          <CardContent>
+          <>
             {orderInvalid.map((a, i) => (
               <Alert key={`invalid-reason-${i}`} severity="error">
                 {a.reason}
               </Alert>
             ))}
-          </CardContent>
+          </>
         )}
-        <CardContent>
-          <Table>
-            <TableBody>
-              {addresses.map((a, i) => (
-                <TableRow key={a.type}>
-                  <TableCell sx={{fontWeight: 'bold'}}>
-                    {a.type === 'BillingAddress' ? 'Billing' : 'Delivery'}{' '}
-                    Address
-                  </TableCell>
-                  <TableCell>{a.fullName}</TableCell>
-                  <TableCell>
-                    {a.addressLine1}
-                    {a.addressLine2 && (
-                      <>
-                        <br /> {a.addressLine2}
-                      </>
-                    )}
-                    , {a.city}, {a.state}, {a.country}, {a.postcode}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <Button
-            variant="outlined"
-            fullWidth
-            sx={{
-              mt: '1rem',
-              borderImage:
-                'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%) 1',
-            }}
-            disabled={orderInvalid}
-            onClick={validateAndSubmitOrder}
-          >
-            SUBMIT
-          </Button>
-        </CardContent>
-      </Card>
+        <AddressTable addresses={addresses} />
+        <Button
+          variant="outlined"
+          fullWidth
+          sx={{
+            mt: '1rem',
+            borderImage:
+              'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%) 1',
+          }}
+          disabled={!!orderInvalid}
+          onClick={validateAndSubmitOrder}
+        >
+          SUBMIT
+        </Button>
+      </Box>
     </>
   );
 }
