@@ -1,25 +1,50 @@
-import { Order } from '@/lib/classes/Order';
-import { AddressTable } from '@/lib/components/AddressTable';
+import {Order} from '@/lib/classes/Order';
+import {AddressTable} from '@/lib/components/AddressTable';
 import CartCard from '@/lib/components/cards/CartCard';
-import { getRelativeTimeString } from '@/pages/orders';
+import {getRelativeTimeString} from '@/pages/orders';
 import prisma from '@/prisma/index';
-import { Card, CardHeader, Chip, IconButton, Typography } from '@mui/material';
-import { GetServerSidePropsContext } from 'next';
+import {
+    Button,
+  Card,
+  CardHeader,
+  Chip,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from '@mui/material';
+import {GetServerSidePropsContext} from 'next';
 import Link from 'next/link';
-import { useSnackbar } from 'notistack';
+import {useSnackbar} from 'notistack';
 
-import { Shipment } from '@/lib/classes/Shipment';
+import {Shipment} from '@/lib/classes/Shipment';
 import ArrowRightIcon from '@mui/icons-material/ArrowForward';
 import ContentCopy from '@mui/icons-material/ContentCopy';
+import {useSession} from 'next-auth/react';
+import {ShipmentCard} from './ShipmentCard';
+import {OrderStatus, ShipmentStatus} from '@prisma/client';
+import {useState} from 'react';
 
 export default function OrderCard({
   order,
-  shipment
+  shipment,
+  editable = false,
 }: {
   order: ReturnType<typeof Order.serialize>;
   shipment: ReturnType<typeof Shipment.serialize>;
+  editable?: boolean;
 }) {
+  const [_orderState] = useState(order);
+  const [orderEditState, setOrderEditState] = useState(
+    replaceNullsWithEmptyStrings(order),
+  );
+  const {data: session} = useSession();
   const {enqueueSnackbar} = useSnackbar();
+
+  const orderState = editable ? orderEditState : _orderState;
+
   const OrderStatusChip = () => (
     <Chip
       color={order.status === 'paid' ? 'success' : 'default'}
@@ -35,6 +60,10 @@ export default function OrderCard({
     });
   };
 
+  const validateAndSave = async () => {
+
+  }
+
   return (
     <Card sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
       <CardHeader
@@ -49,6 +78,39 @@ export default function OrderCard({
           </>
         }
       />
+      {editable && (
+        <FormControl>
+          <InputLabel htmlFor="status-select">Status</InputLabel>
+          <Select
+            label="Status"
+            id="stauts-select"
+            value={orderState.status}
+            onChange={e => {
+              setOrderEditState({
+                ...orderState,
+                status: e.target.value,
+              });
+            }}
+          >
+            {Object.keys(OrderStatus).map(s => {
+              return (
+                <MenuItem value={s}>
+                  {s.replaceAll('_', ' ').toLocaleUpperCase()}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      )}
+      {editable && (
+        <Button
+          variant="outlined"
+          onClick={validateAndSave}
+          fullWidth
+        >
+          Save
+        </Button>
+      )}
       <CartCard
         cardProps={{sx: {p: 0}, variant: 'outlined'}}
         editable={false}
@@ -69,19 +131,53 @@ export default function OrderCard({
           })}
         />
       </Card>
-     <Card variant="outlined">
-        <CardHeader
-          title={`Shipment: ${shipment.id}`}
-          subheader={`Last Updated: ${getRelativeTimeString(shipment.updatedAt)}`}
-          action={<>
-            <Chip label={<Typography variant='overline'>{shipment.status}</Typography>}/>
-            <IconButton href={`/manage/shipments/${shipment.id}`} LinkComponent={Link}>
-              <ArrowRightIcon />
-            </IconButton>
-            </>
-          }
-        />
-      </Card>
+      {editable ? (
+        <Card variant="outlined">
+          <CardHeader
+            title={`Shipment: ${shipment.id}`}
+            subheader={`Last Updated: ${getRelativeTimeString(shipment.updatedAt)}`}
+            action={
+              <>
+                <Chip
+                  label={
+                    <Typography variant="overline">
+                      {shipment.status}
+                    </Typography>
+                  }
+                />
+                <IconButton
+                  href={`/manage/shipments/${shipment.id}`}
+                  LinkComponent={Link}
+                >
+                  <ArrowRightIcon />
+                </IconButton>
+              </>
+            }
+          />
+        </Card>
+      ) : (
+        <ShipmentCard shipment={shipment} />
+      )}
     </Card>
   );
+}
+
+function replaceNullsWithEmptyStrings<T>(input: T): T {
+  if (input === null) return '' as unknown as T;
+
+  if (Array.isArray(input)) {
+    return input.map(item =>
+      replaceNullsWithEmptyStrings(item),
+    ) as unknown as T;
+  }
+
+  if (typeof input === 'object' && input !== null) {
+    const result: any = {};
+    for (const [key, value] of Object.entries(input)) {
+      result[key] = replaceNullsWithEmptyStrings(value);
+    }
+    return result;
+  }
+
+  return input;
 }

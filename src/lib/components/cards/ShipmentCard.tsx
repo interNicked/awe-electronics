@@ -35,7 +35,7 @@ export function ShipmentCard({
   cardProps?: CardProps;
 }) {
   const {enqueueSnackbar} = useSnackbar();
-  const [_shipmentState, setShipmentState] = useState(shipment);
+  const [_shipmentState] = useState(shipment);
   const [shipmentEditState, setShipmentEditState] = useState(
     replaceNullsWithEmptyStrings(shipment),
   );
