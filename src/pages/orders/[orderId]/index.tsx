@@ -12,6 +12,7 @@ import {Shipment} from '@/lib/classes/Shipment';
 import {ShipmentCard} from '@/lib/components/cards/ShipmentCard';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import {useSnackbar} from 'notistack';
+import OrderCard from '@/lib/components/cards/OrderCard';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {orderId: id} = context.query;
@@ -71,64 +72,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   };
 }
 
-export default function OrderPage({
+export function OrderPage({
   order,
   shipment,
 }: {
   order: ReturnType<typeof Order.serialize>;
   shipment: ReturnType<typeof Shipment.serialize>;
 }) {
-  const {enqueueSnackbar} = useSnackbar();
-  const OrderStatusChip = () => (
-    <Chip
-      color={order.status === 'paid' ? 'success' : 'default'}
-      label={<Typography variant="overline">{order.status}</Typography>}
-    />
-  );
-
-  const handleCopy = (field: string, text: string) => {
-    navigator.clipboard.writeText(text);
-    enqueueSnackbar(`Copied ${field} to clipboard`, {
-      variant: 'info',
-      autoHideDuration: 800,
-    });
-  };
-
-  return (
-    <Card sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-      <CardHeader
-        title={`Order: ${order.id}`}
-        subheader={`Last Updated: ${getRelativeTimeString(order.updatedAt)}`}
-        action={
-          <>
-            <OrderStatusChip />
-            <IconButton onClick={() => handleCopy('Order Id', order.id)}>
-              <ContentCopy />
-            </IconButton>
-          </>
-        }
-      />
-      <CartCard
-        cardProps={{sx: {p: 0}, variant: 'outlined'}}
-        editable={false}
-        cart={{
-          id: order.id,
-          items: order.items.map(i => {
-            return {...i, cartId: order.id};
-          }),
-        }}
-      />
-      <Card variant="outlined">
-        <AddressTable
-          addresses={order.addresses.map((a, i) => {
-            return {
-              ...a,
-              type: i === 0 ? 'BillingAddress' : 'DeliveryAddress',
-            };
-          })}
-        />
-      </Card>
-      <ShipmentCard shipment={shipment} />
-    </Card>
-  );
+  return <OrderCard order={order} shipment={shipment} />
 }
+
+export default OrderPage;

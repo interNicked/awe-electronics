@@ -1,16 +1,8 @@
-import { Order } from '@/lib/classes/Order';
-import { AddressTable } from '@/lib/components/AddressTable';
-import CartCard from '@/lib/components/cards/CartCard';
-import { getRelativeTimeString } from '@/pages/orders';
-import prisma from '@/prisma/index';
-import { Card, CardHeader, Chip, IconButton, Typography } from '@mui/material';
-import { GetServerSidePropsContext } from 'next';
-import Link from 'next/link';
-import { useSnackbar } from 'notistack';
-
-import { Shipment } from '@/lib/classes/Shipment';
-import ArrowRightIcon from '@mui/icons-material/ArrowForward';
-import ContentCopy from '@mui/icons-material/ContentCopy';
+import {Order} from '@/lib/classes/Order';
+import {Shipment} from '@/lib/classes/Shipment';
+import OrderCard from '@/lib/components/cards/OrderCard';
+import prisma from '@/prisma';
+import {GetServerSidePropsContext} from 'next';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {orderId: id} = context.query;
@@ -43,8 +35,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   ]);
 
   const shipment = await prisma.shipment.findFirstOrThrow({
-    where: {orderId: id}
-  })
+    where: {orderId: id},
+  });
 
   console.log({addresses});
 
@@ -55,81 +47,19 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         items,
         addresses,
       }),
-      shipment: Shipment.serialize(shipment)
+      shipment: Shipment.serialize(shipment),
     },
   };
 }
 
-export default function OrderPage({
+export function OrderPage({
   order,
-  shipment
+  shipment,
 }: {
   order: ReturnType<typeof Order.serialize>;
   shipment: ReturnType<typeof Shipment.serialize>;
 }) {
-  const {enqueueSnackbar} = useSnackbar();
-  const OrderStatusChip = () => (
-    <Chip
-      color={order.status === 'paid' ? 'success' : 'default'}
-      label={<Typography variant="overline">{order.status}</Typography>}
-    />
-  );
-
-  const handleCopy = (field: string, text: string) => {
-    navigator.clipboard.writeText(text);
-    enqueueSnackbar(`Copied ${field} to clipboard`, {
-      variant: 'info',
-      autoHideDuration: 800,
-    });
-  };
-
-  return (
-    <Card sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-      <CardHeader
-        title={`Order: ${order.id}`}
-        subheader={`Last Updated: ${getRelativeTimeString(order.updatedAt)}`}
-        action={
-          <>
-            <OrderStatusChip />
-            <IconButton onClick={() => handleCopy('Order Id', order.id)}>
-              <ContentCopy />
-            </IconButton>
-          </>
-        }
-      />
-      <CartCard
-        cardProps={{sx: {p: 0}, variant: 'outlined'}}
-        editable={false}
-        cart={{
-          id: order.id,
-          items: order.items.map(i => {
-            return {...i, cartId: order.id};
-          }),
-        }}
-      />
-      <Card variant="outlined">
-        <AddressTable
-          addresses={order.addresses.map((a, i) => {
-            return {
-              ...a,
-              type: i === 0 ? 'BillingAddress' : 'DeliveryAddress',
-            };
-          })}
-        />
-      </Card>
-     <Card variant="outlined">
-        <CardHeader
-          title={`Shipment: ${shipment.id}`}
-          subheader={`Last Updated: ${getRelativeTimeString(shipment.updatedAt)}`}
-          action={<>
-            <Chip label={<Typography variant='overline'>{shipment.status}</Typography>}/>
-            <IconButton href={`/manage/shipments/${shipment.id}`} LinkComponent={Link}>
-              <ArrowRightIcon />
-            </IconButton>
-            </>
-          }
-        />
-      </Card>
-    </Card>
-  );
+  return <OrderCard order={order} shipment={shipment} />;
 }
+
+export default OrderPage;
