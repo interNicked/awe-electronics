@@ -46,7 +46,7 @@ export function AccountPage({
   user,
   cart,
 }: {
-  user: Session['user'];
+  user: Prisma.User;
   cart: CartState | null;
 }) {
   return (
