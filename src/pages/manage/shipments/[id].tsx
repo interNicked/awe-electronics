@@ -1,4 +1,5 @@
-import { Shipment } from '@/lib/classes/Shipment';
+import {Shipment} from '@/lib/classes/Shipment';
+import {ShipmentCard} from '@/lib/components/cards/ShipmentCard';
 import prisma from '@/prisma/index';
 import {GetServerSidePropsContext} from 'next';
 import {notFound} from 'next/navigation';
@@ -25,6 +26,9 @@ export default function ManageOrderPage({
 }: {
   shipment: ReturnType<typeof Shipment.serialize>;
 }) {
-  return <>
-  </>;
+  return (
+    <>
+      <ShipmentCard shipment={shipment} editable />
+    </>
+  );
 }
