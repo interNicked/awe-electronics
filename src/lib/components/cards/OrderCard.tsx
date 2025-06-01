@@ -1,10 +1,10 @@
 import {Order} from '@/lib/classes/Order';
 import {AddressTable} from '@/lib/components/AddressTable';
 import CartCard from '@/lib/components/cards/CartCard';
+import OrderSchema from '@/lib/schemas/OrderSchema';
 import {getRelativeTimeString} from '@/pages/orders';
-import prisma from '@/prisma/index';
 import {
-    Button,
+  Button,
   Card,
   CardHeader,
   Chip,
@@ -15,17 +15,25 @@ import {
   Select,
   Typography,
 } from '@mui/material';
-import {GetServerSidePropsContext} from 'next';
+import {OrderStatus} from '@prisma/client';
+import {useSession} from 'next-auth/react';
 import Link from 'next/link';
 import {useSnackbar} from 'notistack';
+import {useState} from 'react';
+import {ShipmentCard} from './ShipmentCard';
+import z from 'zod';
 
 import {Shipment} from '@/lib/classes/Shipment';
 import ArrowRightIcon from '@mui/icons-material/ArrowForward';
 import ContentCopy from '@mui/icons-material/ContentCopy';
-import {useSession} from 'next-auth/react';
-import {ShipmentCard} from './ShipmentCard';
-import {OrderStatus, ShipmentStatus} from '@prisma/client';
-import {useState} from 'react';
+
+const PostSchema = OrderSchema.extend({
+  id: z.string().uuid(),
+  userId: z.string().uuid().optional(),
+  status: z.nativeEnum(OrderStatus),
+  billingAddressId: z.string().uuid(),
+  deliveryAddressId: z.string().uuid(),
+});
 
 export default function OrderCard({
   order,
@@ -36,7 +44,7 @@ export default function OrderCard({
   shipment: ReturnType<typeof Shipment.serialize>;
   editable?: boolean;
 }) {
-  const [_orderState] = useState(order);
+  const [_orderState, setOrderState] = useState(order);
   const [orderEditState, setOrderEditState] = useState(
     replaceNullsWithEmptyStrings(order),
   );
@@ -48,7 +56,7 @@ export default function OrderCard({
   const OrderStatusChip = () => (
     <Chip
       color={order.status === 'paid' ? 'success' : 'default'}
-      label={<Typography variant="overline">{order.status}</Typography>}
+      label={<Typography variant="overline">{_orderState.status}</Typography>}
     />
   );
 
@@ -61,14 +69,33 @@ export default function OrderCard({
   };
 
   const validateAndSave = async () => {
-
-  }
+    const {data, error} = PostSchema.safeParse(orderState);
+    if (error) {
+      error.issues.map(i => {
+        enqueueSnackbar(`${i.path} - ${i.message}`, {variant: 'error'});
+      });
+    } else {
+      const res = await fetch(`/api/orders/${data.id}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        const s = await res.json();
+        setOrderState({
+          ...s,
+          updatedAt: new Date(s.updatedAt),
+          createdAt: new Date(s.createdAt),
+        });
+      }
+    }
+  };
 
   return (
     <Card sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
       <CardHeader
         title={`Order: ${order.id}`}
-        subheader={`Last Updated: ${getRelativeTimeString(order.updatedAt)}`}
+        subheader={`Last Updated: ${getRelativeTimeString(_orderState.updatedAt)}`}
         action={
           <>
             <OrderStatusChip />
@@ -103,11 +130,7 @@ export default function OrderCard({
         </FormControl>
       )}
       {editable && (
-        <Button
-          variant="outlined"
-          onClick={validateAndSave}
-          fullWidth
-        >
+        <Button variant="outlined" onClick={validateAndSave} fullWidth>
           Save
         </Button>
       )}
