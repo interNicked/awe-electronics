@@ -12,8 +12,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   if (!id || Array.isArray(id)) notFound();
 
-  console.log({id});
-
   const order = await prisma.order.findUnique({
     where: {id},
   });
@@ -21,8 +19,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const items = await prisma.orderItem.findMany({
     where: {orderId: id},
   });
-
-  console.log({order});
 
   if (!order) return {notFound: true};
 
@@ -50,8 +46,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       });
     else throw error;
   }
-
-  console.log({addresses});
 
   return {
     props: {

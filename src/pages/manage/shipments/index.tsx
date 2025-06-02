@@ -1,3 +1,5 @@
+import {Shipment} from '@/lib/classes/Shipment';
+import RelativeTime from '@/lib/components/RelativeTime';
 import prisma from '@/prisma';
 import {
   Card,
@@ -12,8 +14,6 @@ import {GetServerSidePropsContext} from 'next';
 import {getServerSession} from 'next-auth';
 import Link from 'next/link';
 import {authOptions} from '../../api/auth/[...nextauth]';
-import {Shipment} from '@/lib/classes/Shipment';
-import {getRelativeTimeString} from '@/pages/orders';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -91,9 +91,7 @@ export default function ManageOrdersPage({
               headerName: 'Created',
               flex: 1,
               renderCell: params => {
-                return (
-                  <>{getRelativeTimeString(new Date(params.row.createdAt))}</>
-                );
+                return <RelativeTime date={new Date(params.row.createdAt)} />;
               },
             },
             {
@@ -101,9 +99,7 @@ export default function ManageOrdersPage({
               headerName: 'Updated',
               flex: 1,
               renderCell: params => {
-                return (
-                  <>{getRelativeTimeString(new Date(params.row.updatedAt))}</>
-                );
+                return <RelativeTime date={new Date(params.row.updatedAt)} />;
               },
             },
           ]}

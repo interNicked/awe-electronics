@@ -21,7 +21,6 @@ export default async function handler(
     Prisma.Product | Prisma.Product[] | z.ZodError | `Error: ${string}`
   >,
 ) {
-  console.log(req.body);
   switch (req.method) {
     case 'POST':
       const {error: postError, data: postData} = PostSchema.safeParse({

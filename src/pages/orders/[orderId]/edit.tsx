@@ -1,19 +1,19 @@
 import {Order} from '@/lib/classes/Order';
+import {Shipment} from '@/lib/classes/Shipment';
 import {AddressTable} from '@/lib/components/AddressTable';
 import CartCard from '@/lib/components/cards/CartCard';
+import {ShipmentCard} from '@/lib/components/cards/ShipmentCard';
+import RelativeTime from '@/lib/components/RelativeTime';
+import {authOptions} from '@/pages/api/auth/[...nextauth]';
 import prisma from '@/prisma/index';
 import {Card, CardHeader, Chip, IconButton, Typography} from '@mui/material';
 import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
 import {GetServerSidePropsContext} from 'next';
-import {notFound} from 'next/navigation';
-import {getRelativeTimeString} from '..';
-
-import {Shipment} from '@/lib/classes/Shipment';
-import {ShipmentCard} from '@/lib/components/cards/ShipmentCard';
-import ContentCopy from '@mui/icons-material/ContentCopy';
-import {useSnackbar} from 'notistack';
 import {getServerSession} from 'next-auth';
-import {authOptions} from '@/pages/api/auth/[...nextauth]';
+import {notFound} from 'next/navigation';
+import {useSnackbar} from 'notistack';
+
+import ContentCopy from '@mui/icons-material/ContentCopy';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -23,8 +23,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   if (!id || Array.isArray(id)) notFound();
 
-  console.log({id});
-
   const order = await prisma.order.findUnique({
     where: {id},
   });
@@ -32,8 +30,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const items = await prisma.orderItem.findMany({
     where: {orderId: id},
   });
-
-  console.log({order});
 
   if (!order) return {notFound: true};
 
@@ -61,8 +57,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       });
     else throw error;
   }
-
-  console.log({addresses});
 
   return {
     props: {
@@ -103,7 +97,12 @@ export default function OrderPage({
     <Card sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
       <CardHeader
         title={`Order: ${order.id}`}
-        subheader={`Last Updated: ${getRelativeTimeString(order.updatedAt)}`}
+        subheader={
+          <RelativeTime
+            date={new Date(shipment.updatedAt)}
+            prefix="Last Updated: "
+          />
+        }
         action={
           <>
             <OrderStatusChip />

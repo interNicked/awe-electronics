@@ -43,8 +43,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     where: {productId: id},
   });
 
-  console.log({product, options});
-
   return {
     props: {product: Product.serialize(product), options},
   };
@@ -94,21 +92,17 @@ export default function ProductPage({
       });
       if (res.ok) {
         const opt = await res.json();
-        console.log({opt});
         setStateOptions(o => [...o, opt]);
       }
     }
     if (error) console.error({error});
   };
 
-  const handleDeleteOption = async (id: string) => {
-    const {productId} = options[0];
-    if (!productId) throw new Error('Missing Product ID');
-    const res = await fetch(`/api/products/${productId}/options/${id}`, {
+  const handleDeleteOption = async (optId: string) => {
+    const {id} = product;
+    await fetch(`/api/products/${id}/options/${optId}`, {
       method: 'DELETE',
     });
-
-    console.log({ok: res.ok});
   };
 
   const handleDeleteProduct = async () => {

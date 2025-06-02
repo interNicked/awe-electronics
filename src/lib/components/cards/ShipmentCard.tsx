@@ -1,6 +1,5 @@
 import {Shipment} from '@/lib/classes/Shipment';
 import {ShipmentSchema} from '@/lib/schemas/Shipment';
-import {getRelativeTimeString} from '@/pages/orders';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import {
   Button,
@@ -23,6 +22,7 @@ import {ShipmentStatus} from '@prisma/client';
 import dayjs from 'dayjs';
 import {useSnackbar} from 'notistack';
 import {useState} from 'react';
+import RelativeTime, {getRelativeTimeString} from '../RelativeTime';
 
 export function ShipmentCard({
   shipment,
@@ -61,7 +61,6 @@ export function ShipmentCard({
         : {}),
     });
     if (success) {
-      console.log({data});
       const res = await fetch('/api/shipments', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -94,7 +93,12 @@ export function ShipmentCard({
     <Card {...cardProps}>
       <CardHeader
         title={`Shipment: ${shipment.id}`}
-        subheader={`Last Updated: ${getRelativeTimeString(shipment.updatedAt)}`}
+        subheader={
+          <RelativeTime
+            date={new Date(shipment.updatedAt)}
+            prefix="Last Updated: "
+          />
+        }
         action={
           <>
             <Chip

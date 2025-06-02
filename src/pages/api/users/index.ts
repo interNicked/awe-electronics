@@ -6,12 +6,12 @@ import z from 'zod';
 import {notFound} from 'next/navigation';
 import {createHash} from 'crypto';
 
-const PostSchema = z.object({
+export const PostSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 });
 
-const GetSchema = z.object({
+export const GetSchema = z.object({
   email: z.string().email().optional(),
   id: z.string().uuid().optional(),
 });
@@ -22,13 +22,6 @@ export default async function handler(
     Prisma.User | Prisma.User[] | z.ZodError | `Error: ${string}`
   >,
 ) {
-  console.log({
-    method: req.method,
-    data: {
-      ...req.body,
-      ...req.query,
-    },
-  });
   switch (req.method) {
     case 'POST':
       const {error: postError, data: postData} = PostSchema.safeParse({

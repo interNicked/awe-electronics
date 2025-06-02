@@ -1,3 +1,5 @@
+import {Order} from '@/lib/classes/Order';
+import RelativeTime from '@/lib/components/RelativeTime';
 import prisma from '@/prisma/index';
 import {
   Card,
@@ -15,7 +17,6 @@ import {GetServerSidePropsContext} from 'next';
 import {getServerSession} from 'next-auth';
 import Link from 'next/link';
 import {authOptions} from '../api/auth/[...nextauth]';
-import {Order} from '@/lib/classes/Order';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -95,9 +96,7 @@ export default function OrdersIndexPage({orders}: {orders: Prisma.Order[]}) {
                 headerName: 'Created',
                 flex: 1,
                 renderCell: params => {
-                  return (
-                    <>{getRelativeTimeString(new Date(params.row.createdAt))}</>
-                  );
+                  return <RelativeTime date={new Date(params.row.createdAt)} />;
                 },
               },
               {
@@ -105,9 +104,7 @@ export default function OrdersIndexPage({orders}: {orders: Prisma.Order[]}) {
                 headerName: 'Updated',
                 flex: 1,
                 renderCell: params => {
-                  return (
-                    <>{getRelativeTimeString(new Date(params.row.updatedAt))}</>
-                  );
+                  return <RelativeTime date={new Date(params.row.createdAt)} />;
                 },
               },
             ]}
@@ -116,36 +113,4 @@ export default function OrdersIndexPage({orders}: {orders: Prisma.Order[]}) {
       </Card>
     </>
   );
-}
-
-export function getRelativeTimeString(
-  date: Date | number,
-  lang = navigator.language,
-): string {
-  const timeMs = typeof date === 'number' ? date : date.getTime();
-  const deltaSeconds = Math.round((timeMs - Date.now()) / 1000);
-  const cutoffs = [
-    60,
-    3600,
-    86400,
-    86400 * 7,
-    86400 * 30,
-    86400 * 365,
-    Infinity,
-  ];
-  const units: Intl.RelativeTimeFormatUnit[] = [
-    'second',
-    'minute',
-    'hour',
-    'day',
-    'week',
-    'month',
-    'year',
-  ];
-  const unitIndex = cutoffs.findIndex(
-    cutoff => cutoff > Math.abs(deltaSeconds),
-  );
-  const divisor = unitIndex ? cutoffs[unitIndex - 1] : 1;
-  const rtf = new Intl.RelativeTimeFormat(lang, {numeric: 'auto'});
-  return rtf.format(Math.floor(deltaSeconds / divisor), units[unitIndex]);
 }

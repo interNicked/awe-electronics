@@ -2,7 +2,6 @@ import {Order} from '@/lib/classes/Order';
 import {AddressTable} from '@/lib/components/AddressTable';
 import CartCard from '@/lib/components/cards/CartCard';
 import OrderSchema from '@/lib/schemas/OrderSchema';
-import {getRelativeTimeString} from '@/pages/orders';
 import {
   Button,
   Card,
@@ -25,6 +24,7 @@ import z from 'zod';
 import {Shipment} from '@/lib/classes/Shipment';
 import ArrowRightIcon from '@mui/icons-material/ArrowForward';
 import ContentCopy from '@mui/icons-material/ContentCopy';
+import RelativeTime from '../RelativeTime';
 
 const PostSchema = OrderSchema.extend({
   id: z.string().uuid(),
@@ -93,7 +93,12 @@ export default function OrderCard({
     <Card sx={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
       <CardHeader
         title={`Order: ${order.id}`}
-        subheader={`Last Updated: ${getRelativeTimeString(_orderState.updatedAt)}`}
+        subheader={
+          <RelativeTime
+            date={new Date(_orderState.updatedAt)}
+            prefix="Last Updated: "
+          />
+        }
         action={
           <>
             <OrderStatusChip />
@@ -156,7 +161,7 @@ export default function OrderCard({
         <Card variant="outlined">
           <CardHeader
             title={`Shipment: ${shipment.id}`}
-            subheader={`Last Updated: ${getRelativeTimeString(shipment.updatedAt)}`}
+            subheader={<RelativeTime date={new Date(shipment.updatedAt)} />}
             action={
               <>
                 <Chip

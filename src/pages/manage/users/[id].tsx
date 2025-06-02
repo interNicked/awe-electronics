@@ -16,13 +16,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   if (!id || Array.isArray(id)) notFound();
 
-  console.log({id});
-
   const user = await prisma.user.findUnique({
     where: {id},
   });
-
-  console.log({user});
 
   if (!user) return {notFound: true};
 

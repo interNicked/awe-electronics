@@ -51,7 +51,6 @@ export function OrderConfirmCard() {
 
         return i.quantity > opt.stock;
       });
-      console.log({invalidItems});
       if (invalidItems.length !== 0) {
         setOrderInvalid(
           invalidItems.map(i => {

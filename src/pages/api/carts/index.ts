@@ -33,19 +33,11 @@ export default async function handler(
   >,
 ) {
   const session = await getServerSession(req, res, authOptions);
-  console.log({
-    method: req.method,
-    data: {
-      ...req.body,
-      ...req.query,
-    },
-  });
 
   if (!session) return notFound();
 
   switch (req.method) {
     case 'POST':
-      console.log();
       const {error: postError, data: postData} = PostSchema.safeParse({
         ...req.body,
         ...req.query,
@@ -54,8 +46,6 @@ export default async function handler(
         res.status(400).send(postError);
         return;
       }
-
-      console.log({postData});
 
       const user = postData.id
         ? await prisma.cart.update({

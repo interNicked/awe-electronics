@@ -41,14 +41,13 @@ export default async function handler(
         return;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const prevAddresses = await prisma.address.updateMany({
         where: {userId: postData.userId},
         data: {
           status: Prisma.$Enums.AddressStatus.PreviousAddress,
         },
       });
-
-      console.log({prevAddresses});
 
       const addresses = await prisma.address.createManyAndReturn({
         data: postData.addresses.map(a => {

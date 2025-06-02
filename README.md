@@ -22,7 +22,12 @@ npm install
 # (note: `yarn` can be replaced with `npm run`)
 cd src/
 yarn migrate init
+
+# Generate Types from Schema
 yarn generate
+
+# Seed DB (Create predefined objects defined in src/prisma/seed.ts)
+yarn seed
 ```
 
 Now, run the development server:

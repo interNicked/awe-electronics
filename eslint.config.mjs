@@ -15,7 +15,10 @@ const compat = new FlatCompat({
 
 export default defineConfig([
   {
-    extends: compat.extends('./node_modules/gts/'),
+    extends: compat.extends(
+      './node_modules/gts/',
+      'plugin:@next/next/recommended',
+    ),
     rules: {
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-duplicate-enum-values': 'off',

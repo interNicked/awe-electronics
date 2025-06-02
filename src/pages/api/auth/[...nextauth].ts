@@ -13,12 +13,12 @@ export const authOptions: AuthOptions = {
         password: {label: 'Password', type: 'password'},
       },
       async authorize(credentials) {
+        console.log({credentials});
         if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
           where: {email: credentials.email},
         });
-        console.log({user});
 
         if (!user || !user.passwordHash) return null;
         const hash = createHash('sha256')
@@ -26,7 +26,6 @@ export const authOptions: AuthOptions = {
           .digest('hex');
         const isValid = hash === user.passwordHash;
 
-        console.log({hash, pw: user.passwordHash});
         if (!isValid) return null;
 
         return {
@@ -57,6 +56,9 @@ export const authOptions: AuthOptions = {
       }
       return session;
     },
+  },
+  pages: {
+    signIn: '/account/login',
   },
 };
 

@@ -41,8 +41,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     where: {productId: id},
   });
 
-  console.log({product, options});
-
   return {
     props: {product: Product.serialize(product), options},
   };

@@ -12,10 +12,11 @@ import MenuItem from '@mui/material/MenuItem';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import {signIn, signOut, useSession} from 'next-auth/react';
+import {signOut, useSession} from 'next-auth/react';
 import Link from 'next/link';
 import * as React from 'react';
 import {useCart} from './hooks/useCart';
+import {useRouter} from 'next/router';
 
 const pages = ['Products', 'Cart'];
 
@@ -44,6 +45,7 @@ function ResponsiveAppBar() {
 
   const {state} = useCart();
   const {data: session} = useSession();
+  const router = useRouter();
 
   return (
     <AppBar position="static">
@@ -223,12 +225,23 @@ function ResponsiveAppBar() {
                 </Link>
               )}
               <MenuItem
-                onClick={session?.user ? () => signOut() : () => signIn()}
+                onClick={
+                  session?.user
+                    ? () => signOut()
+                    : () => router.push('/account/login')
+                }
               >
                 <Typography sx={{textAlign: 'center'}}>
                   {session?.user ? 'Logout' : 'Login'}
                 </Typography>
               </MenuItem>
+              {!session?.user && (
+                <Link href="/account/create">
+                  <MenuItem>
+                    <Typography sx={{textAlign: 'center'}}>Sign Up</Typography>
+                  </MenuItem>
+                </Link>
+              )}
             </Menu>
           </Box>
         </Toolbar>

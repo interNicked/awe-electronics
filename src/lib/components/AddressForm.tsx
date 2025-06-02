@@ -123,6 +123,7 @@ export function AddressForm() {
             onChange={handleChange(prefix, field)}
             error={Boolean(errors[`${prefix}.${field}`])}
             helperText={errors[`${prefix}.${field}`] || ' '}
+            required={field !== 'addressLine2'}
           />
         </Grid>
       ))}
@@ -137,15 +138,12 @@ export function AddressForm() {
         const _billing = addresses.find(a => a.type === 'BillingAddress');
         const _delivery = addresses.find(a => a.type === 'DeliveryAddress');
 
-        console.log({addresses, _billing, _delivery});
         if (_billing) setBilling(_billing);
         if (_delivery) setDelivery(_delivery);
       } else if (session?.user.id) {
         const res = await fetch(`/api/users/${session?.user.id}/addresses`);
         const address = (await res.json()) as Address[];
-        console.log({
-          address: address.filter(a => a.status === 'CurrentAddress'),
-        });
+
         const _billing = address.find(a => a.type === 'BillingAddress');
         const _delivery = address.find(a => a.type === 'DeliveryAddress');
 

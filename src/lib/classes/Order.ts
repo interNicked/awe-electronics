@@ -1,8 +1,13 @@
 import {randomUUID} from 'crypto';
 import {Customer} from './Customer';
 import {ShoppingCart} from './ShoppingCart';
-import {Address, Order as OrderType, OrderItem} from '@prisma/client';
+import {
+  Address as AddressType,
+  Order as OrderType,
+  OrderItem,
+} from '@prisma/client';
 import {Shipment} from './Shipment';
+import {Address} from './Address';
 
 export enum OrderStatus {
   Pending,
@@ -35,19 +40,13 @@ export class Order {
     order: OrderType;
     shipment?: ReturnType<typeof Shipment.serialize>;
     items?: OrderItem[];
-    addresses?: Address[];
+    addresses?: AddressType[];
   }) {
     const _order = {
       ...order,
       createdAt: order.createdAt.valueOf(),
       updatedAt: order.createdAt.valueOf(),
-      addresses: addresses.map(a => {
-        return {
-          ...a,
-          createdAt: a.createdAt.valueOf(),
-          updatedAt: a.createdAt.valueOf(),
-        };
-      }),
+      addresses: addresses.map(a => Address.serialize(a)),
       items,
     };
 

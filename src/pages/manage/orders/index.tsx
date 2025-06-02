@@ -1,5 +1,5 @@
 import {Order} from '@/lib/classes/Order';
-import {getRelativeTimeString} from '@/pages/orders';
+import RelativeTime from '@/lib/components/RelativeTime';
 import prisma from '@/prisma';
 import {
   Card,
@@ -70,9 +70,7 @@ export default function ManageOrdersPage({
               headerName: 'Created',
               flex: 1,
               renderCell: params => {
-                return (
-                  <>{getRelativeTimeString(new Date(params.row.createdAt))}</>
-                );
+                return <RelativeTime date={new Date(params.row.createdAt)} />;
               },
             },
             {
@@ -80,9 +78,7 @@ export default function ManageOrdersPage({
               headerName: 'Updated',
               flex: 1,
               renderCell: params => {
-                return (
-                  <>{getRelativeTimeString(new Date(params.row.updatedAt))}</>
-                );
+                return <RelativeTime date={new Date(params.row.updatedAt)} />;
               },
             },
           ]}

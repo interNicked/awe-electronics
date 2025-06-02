@@ -152,6 +152,6 @@ const saveCart = (state: CartState) => {
     },
     body: JSON.stringify(state),
   })
-    .then(res => console.log(res.ok ? 'Saved' : res.status))
+    .then(res => (res.ok ? (() => {})() : console.error(res.status)))
     .catch(e => console.error(e));
 };

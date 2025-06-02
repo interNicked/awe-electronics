@@ -9,7 +9,6 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 export default function ProductsIndexPage() {
   const {data: session} = useSession();
 
-  console.log({session});
   return (
     <>
       <Card>

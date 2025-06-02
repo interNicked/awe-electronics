@@ -1,10 +1,10 @@
 import {Table, TableBody, TableRow, TableCell} from '@mui/material';
-import {Order} from '../classes/Order';
+import {Address} from '../classes/Address';
 
 export function AddressTable({
   addresses,
 }: {
-  addresses: ReturnType<typeof Order.serialize>['addresses'];
+  addresses: ReturnType<typeof Address.serialize>[];
 }) {
   return (
     <Table>

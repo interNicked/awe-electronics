@@ -16,6 +16,7 @@ import CancelIcon from '@mui/icons-material/Close';
 import {GetServerSidePropsContext} from 'next';
 import {getServerSession} from 'next-auth';
 import {authOptions} from '../../api/auth/[...nextauth]';
+import RelativeTime from '@/lib/components/RelativeTime';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -88,7 +89,22 @@ export default function UsersIndexPage() {
                   </Avatar>
                 ),
               },
-              {field: 'createdAt', flex: 1},
+              {
+                field: 'createdAt',
+                headerName: 'Created',
+                flex: 1,
+                renderCell: params => {
+                  return <RelativeTime date={new Date(params.row.createdAt)} />;
+                },
+              },
+              {
+                field: 'updatedAt',
+                headerName: 'Updated',
+                flex: 1,
+                renderCell: params => {
+                  return <RelativeTime date={new Date(params.row.updatedAt)} />;
+                },
+              },
             ]}
           />
         </CardContent>

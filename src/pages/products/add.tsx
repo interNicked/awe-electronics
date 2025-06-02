@@ -48,32 +48,37 @@ export function AddProductPage() {
   const router = useRouter();
 
   const handleAddProduct = async () => {
-    const {success, error} = ProductPostSchema.safeParse(product);
-    console.log({error});
-    if (success) {
-      const res = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(product),
-      });
+    const {error} = ProductPostSchema.safeParse(product);
 
-      if (res.ok) {
-        const savedProduct = await res.json();
-        await Promise.all(
-          options.map(o =>
-            fetch(`/api/products/${savedProduct.id}/options`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(o),
-            }),
-          ),
-        );
-        router.push(`/products/${savedProduct.id}`);
-      }
+    if (error) {
+      error.issues.map(i =>
+        enqueueSnackbar(`${i.path} : ${i.message}`, {variant: 'error'}),
+      );
+      return;
+    }
+
+    const res = await fetch('/api/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(product),
+    });
+
+    if (res.ok) {
+      const savedProduct = await res.json();
+      await Promise.all(
+        options.map(o =>
+          fetch(`/api/products/${savedProduct.id}/options`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(o),
+          }),
+        ),
+      );
+      router.push(`/products/${savedProduct.id}`);
     }
   };
 
@@ -105,11 +110,9 @@ export function AddProductPage() {
   const handleDeleteOption = async (id: string) => {
     const {productId} = options[0];
     if (!productId) throw new Error('Missing Product ID');
-    const res = await fetch(`/api/products/${productId}/options/${id}`, {
+    await fetch(`/api/products/${productId}/options/${id}`, {
       method: 'DELETE',
     });
-
-    console.log({ok: res.ok});
   };
 
   return (
