@@ -28,7 +28,7 @@ import RelativeTime from '../RelativeTime';
 
 const PostSchema = OrderSchema.extend({
   id: z.string().uuid(),
-  userId: z.string().uuid().optional(),
+  userId: z.string().optional(),
   status: z.nativeEnum(OrderStatus),
   billingAddressId: z.string().uuid(),
   deliveryAddressId: z.string().uuid(),
